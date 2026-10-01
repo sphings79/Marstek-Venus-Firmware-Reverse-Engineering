@@ -125,13 +125,12 @@ cloud-free avoids the firmware’s 30-minute network resets — see the related 
 
 | Project | What it is |
 |---|---|
-| [marstek_venus_modbus_dev](https://github.com/sphings79/marstek_venus_modbus_dev) | Home Assistant integration for Marstek Venus over local Modbus TCP — sensors, controls, schedules, full register map. No cloud, HACS compatible. |
+| [marstek-modbus-suite](https://github.com/sphings79/marstek-modbus-suite) | Home Assistant integration for Marstek Venus over local Modbus TCP — sensors, controls, schedules, full register map. No cloud, HACS compatible. |
 | [Marstek-offline-endpoint](https://github.com/sphings79/Marstek-offline-endpoint) | Self-hosted endpoint that answers the telemetry upload locally, stopping the firmware’s 30-minute network resets that break Modbus TCP. |
-| [Marstek_Modbus_Register](https://github.com/sphings79/Marstek_Modbus_Register) | Community reverse-engineering of the Venus D Modbus TCP registers (30000–49999), DE/EN, CSV + Markdown. |
 | [marstek-firmware-archiv](https://github.com/sphings79/marstek-firmware-archiv) | Firmware archive for Venus E/D/A, Saturn/B2500 & CT002 — original OTA downloads, release notes, SHA-256 checksums. |
 | [marstek-fw-checker](https://github.com/sphings79/marstek-fw-checker) | Download, back up & archive firmware for Marstek Venus D/E/C/A and B2500 before installing an update. |
 | [marstek-firmware-analyzer](https://github.com/sphings79/marstek-firmware-analyzer) | Browser-based analyzer for Marstek firmware images — extracts embedded certificates, keys and AWS IoT endpoints, fully client-side. |
-| [venuscontrol](https://github.com/sphings79/venuscontrol) | Cloud-free web control panel for Venus A/D over Web Bluetooth — OTA updates, peak shaving, local Modbus TCP / Shelly Pro 3EM setup. |
+| [marstek-ble-control](https://github.com/sphings79/marstek-ble-control) | Cloud-free web control panel for Venus A/D/E over Web Bluetooth — OTA updates, peak shaving, local Modbus TCP / Shelly Pro 3EM setup. |
 
 ## Support
 

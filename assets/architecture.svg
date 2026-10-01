@@ -82,5 +82,5 @@
   <!-- footer -->
   <text x="40" y="470" class="m mono" font-size="12">Static reverse engineering with Ghidra — no SWD/JTAG. Identifiers in all docs are anonymized.</text>
   <rect x="40" y="486" width="920" height="1" fill="#1b2636"/>
-  <text x="40" y="510" class="accent mono" font-size="12">github.com/sphings79/Marstek-Venus-D-Firmware-Reverse-Engineering</text>
+  <text x="40" y="510" class="accent mono" font-size="12">github.com/sphings79/Marstek-Venus-Firmware-Reverse-Engineering</text>
 </svg>

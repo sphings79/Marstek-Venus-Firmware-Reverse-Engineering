@@ -37,7 +37,7 @@
     <text x="762" y="459" text-anchor="middle" fill="#b79bfa">Home Assistant</text>
   </g>
 
-  <text x="110" y="540" class="mono" fill="#5f6b7d" font-size="19">github.com/sphings79/Marstek-Venus-D-Firmware-Reverse-Engineering</text>
+  <text x="110" y="540" class="mono" fill="#5f6b7d" font-size="19">github.com/sphings79/Marstek-Venus-Firmware-Reverse-Engineering</text>
 
   <g class="mono" font-size="18" opacity="0.9">
     <text x="1200" y="150" text-anchor="end" fill="#5f6b7d">08052270  push {r4,r5,r6,lr}</text>
