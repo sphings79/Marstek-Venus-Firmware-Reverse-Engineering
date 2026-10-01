@@ -130,12 +130,12 @@ vermeidet die 30-Minuten-Netz-Resets der Firmware — siehe die verwandten Proje
 
 | Projekt | Was es ist |
 |---|---|
-| [marstek-modbus-suite](https://github.com/sphings79/marstek-modbus-suite) | Home-Assistant-Integration für Marstek Venus über lokales Modbus TCP — Sensoren, Steuerung, Zeitpläne, volle Register-Map. Ohne Cloud, HACS-kompatibel. |
+| [Marstek Modbus Suite](https://github.com/sphings79/marstek-modbus-suite) | Home-Assistant-Integration für Marstek Venus über lokales Modbus TCP — Sensoren, Steuerung, Zeitpläne, volle Register-Map. Ohne Cloud, HACS-kompatibel. |
 | [Marstek-offline-endpoint](https://github.com/sphings79/Marstek-offline-endpoint) | Selbstgehosteter Endpunkt, der den Telemetrie-Upload lokal beantwortet und die 30-Minuten-Netz-Resets der Firmware stoppt. |
 | [marstek-firmware-archiv](https://github.com/sphings79/marstek-firmware-archiv) | Firmware-Archiv für Venus E/D/A, Saturn/B2500 & CT002 — Original-OTA-Downloads, Release Notes, SHA-256-Prüfsummen. |
 | [marstek-fw-checker](https://github.com/sphings79/marstek-fw-checker) | Firmware für Marstek Venus D/E/C/A und B2500 herunterladen, sichern und archivieren, bevor ein Update installiert wird. |
 | [marstek-firmware-analyzer](https://github.com/sphings79/marstek-firmware-analyzer) | Browser-basierter Analyzer für Marstek-Firmware-Images — extrahiert eingebettete Zertifikate, Keys und AWS-IoT-Endpunkte, vollständig clientseitig. |
-| [marstek-ble-control](https://github.com/sphings79/marstek-ble-control) | Cloudfreies Web-Control-Panel für Venus A/D/E über Web Bluetooth — OTA-Updates, Peak Shaving, lokales Modbus TCP / Shelly Pro 3EM. |
+| [Marstek BLE Control](https://github.com/sphings79/marstek-ble-control) | Cloudfreies Web-Control-Panel für Venus A/D/E über Web Bluetooth — OTA-Updates, Peak Shaving, lokales Modbus TCP / Shelly Pro 3EM. |
 
 ## Unterstützung
 
