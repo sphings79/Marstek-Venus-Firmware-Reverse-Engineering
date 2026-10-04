@@ -1,0 +1,40 @@
+# Marstek/Hamedata Venus D/A/E – Zertifikats- und Registerrecherche
+
+> 🇬🇧 English version: [Certificates_Registry_Research.md](Certificates_Registry_Research.md)
+
+Stand: 2026-09-30. Alle Dokumente wurden als PDF heruntergeladen nach
+`cert_search/` im lokalen Arbeitsverzeichnis.
+US-FCC (Grantee 2ADOW) wurde bereits geprüft und enthält keine Venus-Produkte (laut Vorgabe nicht erneut geprüft).
+
+## Treffer-Tabelle
+
+| Quelle / Stelle | URL | Modell(e) | Dokumenttyp | Datum | Inhalt |
+|---|---|---|---|---|---|
+| Kiwa Primara GmbH (DAkkS-akkreditiert) | https://cdn-reichelt.de/documents/datenblatt/D400/MRST_VENUS-E3_EINHEITEN.pdf | MST-BIE5-2500 / MST-BIE5-0800 (Venus E 3.0) | VDE-AR-N 4105 Einheitenzertifikat Nr. 25-412-00 | Ausstellung 2025-09-28, Prüfbericht 2025-09-26 | Reine Werte-Tabelle (PEmax, SEmax, Bemessungsspannung/-strom, HW V34/SW 113), Oberschwingungs-/Zwischenharmonische-Messwerte, Flicker-Koeffizienten. Keine internen Fotos, kein Bauteil-Datenblatt. Prüflabor Lyns-tci Technology Guangdong (A2LA 5200.02). Limitiert auf ≤4,6 kVA. |
+| Bureau Veritas Consumer Products Services Germany (DAkkS) | https://balkonkraftwerk-sued.de/wp-content/uploads/2025/07/Marstek-Venus-E-Einheitszertifikat.pdf (identisch mit https://cdn.tepto.de/media/.../Einheitenzertifikat_Marstek_Venus.pdf) | MST-BIE2.5-2500, MST-BIE2.5-0800, MST-BIE5-2500, MST-BIE5-0800 (Venus E, ältere Generation) | VDE-AR-N 4105 / DIN VDE V 0124-100 Einheitenzertifikat Nr. U24-1239 | Ausstellung 2025-01-09, Prüfbericht BWDO-ESH-P24111897, Messzeitraum 2024-07-05 bis 2024-11-30 | Firmware V137. Tabellen: DC-Spannungsbereich 44,8–58,4 V, max. Lade-/Entladestrom 45–60 A, AC 230/400 V, Ik" 14,2 A, Wirk-/Scheinleistung. Kurzbeschreibung Aufbau: „DC- und netzseitiger EMV-Filter, galvanische Trennung DC/AC (HF-Transformator), einfehlersichere Abschaltung über Wechselrichterbrücke + Relais je Phase.“ Keine Fotos, keine Bauteilliste. |
+| Lyns-tci Technology Guangdong (A2LA 5200.02) | Shopify-CDN des Herstellers: https://cdn.shopify.com/s/files/1/0955/3657/8903/files/Germany_Grid_Connection.pdf | MST-BIE5-2500 / MST-BIE5-0800 (Venus E, Firmware BMS 106 / SW 113) | Vollständiger Prüfbericht DIN VDE V 0124-100 / VDE-AR-N 4105:2018-11, Report-Nr. LS2A25082503EGDE01, 231 Seiten | Ausgestellt 2025-11-26 | **Annex 2 „Pictures of the unit“ (S. 225–231): Fotos Gehäuse Front/Rück-/Seitenansichten inkl. Typenschild-Nahaufnahmen (keine Innenansichten/PCB).** Enthält vollständige Prüfkurven (Flicker, Netzstützung, NS-Schutz, Inselerkennung etc.) und Kopie des Typenschilds mit allen technischen Daten (Ladestrom 60 A, IP65, Isolated-Topologie, Schutzklasse I). |
+| Hwa-Hsing (Dongguan) Testing / Lyns-tci | https://cdn.shopify.com/s/files/1/0955/3657/8903/files/LVD_IEC62040_Test_Report.pdf | MST-BIE5-800 / MST-BIE5-2500 (Venus-E) | IEC 62040-1 (UPS-Sicherheit) Testbericht Nr. 25090404001-SF-LD, 112 Seiten | Ausgestellt 2025-11-11 | Ratings-Tabelle: Batterie LiFePO4 51,2 V, max. Ladestrom 120 A / Entladestrom 200 A (Systemgrenzen, nicht BMS-Zellwert), Backup/EPS max. 3,5 kVA. Annex 2 „Pictures of the unit“ S. 100 (nicht inhaltlich geprüft, Seitenzahl deutet auf reine Gehäusefotos wie im VDE-Bericht). |
+| Shenzhen CCJC Technology (CNAS L9856) | https://cdn.shopify.com/s/files/1/0955/3657/8903/files/UN38.3_Certificate.pdf | MST-BIE5-2500 (Venus-E), Zelle GSP50160119F | UN38.3 Test Report Nr. CCJC2514572R01, 18 Seiten | Test 2025-05-19 bis 2025-06-23 | Zell-/Pack-Daten: 3,2 V / 100 Ah pro Zelle, Pack 51,2 V / 100 Ah / 5120 Wh, 16S1P, Ladeschlussspannung 57,6 V, Entladeschlussspannung 48,0 V. Alle 8 UN38.3-Tests bestanden (Höhensimulation, Thermik, Vibration, Schock, Kurzschluss, Crush, Überladung, Zwangsentladung). Keine internen Fotos. |
+| CCIC Southern Testing Co. (CNAS) | https://cdn.shopify.com/s/files/1/0955/3657/8903/files/IP65_Test_Report.pdf | MST-BIE5-2500 (repräsentativ auch für MST-BIE5-0800) | IEC 60529 IP-Test Report Nr. 20250910W23238, 10 Seiten | Test 2025-09-04 bis 2025-09-11 | IP6X (Staub) + IPX5 (Strahlwasser) bestanden. Enthält Prüffotos (Staubkammer, Wasserstrahl-Test) sowie 2 Produktfotos (Außengehäuse schwarz/Hochglanz-Variante mit „MARSTEK“-Schriftzug, RJ45-Anschlüsse sichtbar). Keine Innenansicht. |
+| Shen Zhen Webb Testing Technology | https://cdn.shopify.com/s/files/1/0955/3657/8903/files/WEEE_Certificate.pdf | MST-BIE5-2500 / MST-BIE5-0800 (Venus-E) | WEEE-Recyclingfähigkeits-Testbericht Nr. WEB250827011RC (Directive 2012/19/EU Art. 11 / Annex V), 9 Seiten | Sep. 2025 | **Enthält "Disassembly Tree" mit Innenfotos**: A1 Gehäuseinnenraum (Verkabelung, Display), A2 Gehäuserückwand innen, A3 zerkleinertes Kunststoffgranulat, **A4 grüne Leiterplatte (PCB) fotografiert – keine Bauteilbeschriftung lesbar/keine Stückliste**, A5 Kabelbaum, A6 16 prismatische Batteriezellen (LFP, sichtbar in 2 Gruppen à 8). Gewicht gesamt 58,80 kg, davon Batterie 45,5 kg, PCB 2,80 kg. Reuse/Recycling 82,4 %, Recovery 88,1 % (Pass). Keine MCU-/AFE-Chip-Bezeichnungen lesbar. |
+| Marktstammdatenregister (MaStR) | (Marktstammdatenregister-Eintrag, Einheitennummer entfernt) | Venus E | Einheiten-Registrierung (Betreiberdaten, keine Herstellerzertifikate) | – | Nur Anlagendaten (5,12 kWh nutzbare Kapazität, 2,5 kW Wechselrichterleistung), keine technischen Innendetails. |
+| ZEREZ (FGW) | zerez.net | – | – | – | Keine öffentlich auffindbaren Marstek-Einträge; ZEREZ-Volltextsuche ist nicht ohne Zugang/Login durchsuchbar, Web-Suche liefert keine Treffer. Nicht abschließend verifizierbar ohne Registrierung (außerhalb des erlaubten Rechercheumfangs, da Login nötig). |
+
+## Geprüft, aber ohne verwertbaren Treffer
+
+- **TÜV Rheinland Certipedia** (certipedia.com): Keine Marstek/Hamedata-Einträge auffindbar über Web-Suche; die Zertifizierungen der Venus-Reihe laufen laut den gefundenen Dokumenten über Bureau Veritas Germany und Kiwa Primara, nicht TÜV Rheinland.
+- **TÜV SÜD, Intertek Directory, CB-Scheme (IECEE)**: Keine Marstek/Hamedata-Treffer in den öffentlich durchsuchbaren Datenbanken gefunden.
+- **Clean Energy Council Australia** (Approved batteries/inverters): Keine Bestätigung eines Marstek-Venus-Eintrags über Websuche; müsste direkt in der CEC-Datenbank (Login/Volltextsuche nötig) geprüft werden.
+- **Japan TELEC/技適 (tele.soumu.go.jp)**: Keine Marstek-Treffer; Datenbank ist nur per Formularsuche durchsuchbar (nicht per Web-Crawler auffindbar).
+- **Korea KC/RRA (rra.go.kr)**: Keine Marstek-spezifischen Treffer; Datenbank nur per Formularsuche.
+- **Brasilien Anatel (Mosaico)**: Keine Marstek-Treffer.
+- **China SRRC/CCC**: Keine öffentlich indexierten Marstek-Zertifikate gefunden.
+- **EU EPREL**: Keine Marstek-Venus-Einträge auffindbar (EPREL ist für Energielabel-pflichtige Produktgruppen; Hausspeicher fallen aktuell nicht zwingend darunter).
+- **Bluetooth SIG Qualified Product Listing**: Keine direkte Bestätigung, dass Quectel FC41D (bzw. eine Marstek-spezifische Kombination) in Launch Studio gelistet ist – Datenbank ist nicht ohne gezielte QDID-Suche/Login durchsuchbar.
+- **Wi-Fi Alliance**: Keine Marstek-spezifischen Einträge auffindbar.
+- **UKCA**: Keine separate UKCA-Konformitätserklärung öffentlich auffindbar (vermutlich Teil der Handbücher, aber kein separates PDF gefunden).
+- **marstek.de/pages/downloads**: 404, Downloadbereich unter anderer URL-Struktur; nicht identifiziert innerhalb des Zeitbudgets.
+
+## Wichtigste Erkenntnisse zur ursprünglichen Fragestellung (MCU/AFE/Funkmodul-Nachweis)
+
+Keines der gefundenen öffentlichen Zertifikate/Testberichte nennt konkrete Bauteil-Partnummern (Nations N32G45x, KA495xx-AFE, Quectel FC41D, CH395). Der einzige Fund mit echten Innenfotos ist der **WEEE-Recyclingtest von Shen Zhen Webb Testing** (siehe Tabelle) – er zeigt eine grüne Leiterplatte (Foto A4) und die Zellkonfiguration (16 prismatische LFP-Zellen, Foto A6), aber ohne lesbare Chip-Beschriftungen oder Stückliste. Für eine Bauteilidentifikation (MCU/AFE/Funkmodul) bleibt die eigene Ghidra-Firmware-Analyse bzw. eine physische Teardown-Fotoserie (z. B. aus Foren/YouTube-Teardowns) die ergiebigere Quelle als die geprüften Zertifizierungsregister.
