@@ -419,6 +419,8 @@ Je BMS-Version (nur Mehrpack-Modelle; Image-Namen im Firmware-Archiv):
 | D | 118 | `L = 100 − DoD`, Schwelle `max(soc% − 10, L)`, bei `soc% ≤ L` → `L − 1` | **Cutoff + 0,9 %** (12,9 % bei Cutoff 12 %) | vorhanden | Dekompilat `0x080093bc`; am 10./11.10.2026 an einem Venus D (BMS 118) gemessen |
 | A | 109 | Funktionskörper **Byte für Byte identisch** zu A 1105 (`0x08009384`) | **Cutoff + 0,9 %** | identisch zu 1105 (`ModeBySoc`, `Mode1/2/3`, `ChargeStepTarget`, `Discharge_StepRotate`) | Byte-Vergleich, nicht dekompiliert, nicht gemessen |
 | A | 1105 | gleiche Formel wie D 118, nur Adressen anders | **Cutoff + 0,9 %** | vorhanden | Dekompilat `0x0800942c`, nicht gemessen |
+| A | 110 | identisch zu A 1105 (`0x08009384`); Pack-Auswahl unverändert, nur das Stromlimit weicht ab (40 A) | **Cutoff + 0,9 %** | identisch / nur Call-Ziele anders | Byte-Vergleich und Dekompilat, nicht gemessen |
+| A | 115 | Schwellenfunktion Byte-identisch zu 1105 (`0x08009EB4`); **Stale Threshold behoben**, neuer Abstandswechsel (siehe unten) | **Cutoff + 0,9 %** | `ModeBySoc`, `Mode1/2/3` identisch; `ChargeStepTarget`, `Discharge_StepRotate`, `ModeDispatch` geändert | Dekompilat, nicht gemessen |
 
 Anmerkungen zur Tabelle:
 
@@ -430,6 +432,17 @@ Anmerkungen zur Tabelle:
   `L` laufen (Einzelheiten: `BMS/VNSD_BMS_Pack_Rotation_Taper_v118_de.md` §5.3).
 - Nur per Byte-Suche und Dekompilat geprüft. Beim A 109 nicht verglichen: der CAN-Heartbeat-Pfad, der
   `g_dischargeLimitPct` zur Laufzeit aktualisiert (in A 1105 und D 118 vorhanden, in D 117.7 nicht).
+- **A 115 unterscheidet sich in zwei Punkten** (Einzelheiten: `BMS/VNSA_BMS_Diff_v110_v115_de.md`,
+  Release-Note-Punkte 1 und 2):
+  - `PackSelect_Discharge_StepRotate` berechnet die gespeicherte Schwelle neu, sobald sie mehr als 10
+    Punkte unter dem SOC des aktiven Packs liegt (dynamische Zielkorrektur). Damit entfällt der Stale
+    Threshold von D 118 / A 1105 (§5.3 in `BMS/VNSD_BMS_Pack_Rotation_Taper_v118_de.md`).
+  - Neu ist `PackSelect_SocImbalanceSwitch` (`0x08007B98`, aus `PackSelect_ModeDispatch` im Modus 0
+    aufgerufen): Beträgt der Abstand zwischen vollstem und leerstem Online-Pack ≥ 20 Punkte, wird nach
+    einer leistungsabhängigen Verzögerung von 1200 / 1800 / 2400 / 3000 Ticks (> 1500 W / > 1000 W /
+    > 500 W / sonst) auf das vollste Pack (Entladen) bzw. das leerste (Laden) gewechselt.
+  - Die Schwelle selbst (`L = 100 − DoD`, Ganzzahlvergleich) ist unverändert, der Wechselpunkt bleibt bei
+    Cutoff + 0,9 %.
 
 **E3:** eigene BMS-Firmware. Das Archiv enthält die Images 106, 110, 112, 113 und 115; 115 ist
 dekompiliert (`BMS/VNSE3_BMS_FW_v115_Vollanalyse_de.md`). Es meldet ein Pack und hat keine
