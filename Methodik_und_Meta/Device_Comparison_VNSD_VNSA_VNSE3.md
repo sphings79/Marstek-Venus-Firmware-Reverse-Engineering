@@ -407,13 +407,32 @@ on all three models:
 | A 150 | `min(P_bms, 2500)`, like D 149.2/150; overall cap 2400 instead of 4000 |
 | A 1509 | `ac + P_bms`, like D 147 (byte comparison at `0x0801ecb4`) |
 
-**BMS:** According to a byte search, the A BMS (109/1105) contains the same 10 % target function
-(`PackSelect_ChargeStepTarget` in the D). The discharge threshold with DoD lower limit and the modes 2/3
-below 11 % exist only in D 118.
+**BMS — pack hand-off threshold on discharge (corrected 2026-10-11):** The earlier statement that the
+discharge threshold with DoD lower limit and the modes 2/3 below 11 % exist "only in D 118" was wrong.
+Per BMS version (multi-pack models only; image names in the firmware archive):
 
-**E3:** own BMS firmware, no image. The archive 106–115 contains no code for
-pack selection or taper. The E3 taper is therefore unknown, and the Modbus address of the
-current limit on the E3 is not yet evidenced.
+| Model | BMS FW | `PackSelect_DischargeStepThreshold` | Hand-off to the fullest pack at (cutoff 12 %) | `ChargeStepTarget`, modes 1/2/3 | Evidence |
+|---|---|---|---|---|---|
+| D | 117.7 (`1177`) | fixed step table `max(10, ⌊(soc% − 10) / 10⌋ · 10)`, **ignores** the configured discharge limit | about **10.9 %**, independent of the cutoff | present | decompilation `0x08009354` |
+| D | 118 | `L = 100 − DoD`, threshold `max(soc% − 10, L)`, at `soc% ≤ L` → `L − 1` | **cutoff + 0.9 %** (12.9 % at cutoff 12 %) | present | decompilation `0x080093bc`; measured on a Venus D (BMS 118) on 10/11 Oct 2026 |
+| A | 109 | function body **byte-identical** to A 1105 (`0x08009384`) | **cutoff + 0.9 %** | byte-identical to 1105 (`ModeBySoc`, `Mode1/2/3`, `ChargeStepTarget`, `Discharge_StepRotate`) | byte comparison, not decompiled, not measured |
+| A | 1105 | same formula as D 118, only addresses differ | **cutoff + 0.9 %** | present | decompilation `0x0800942c`, not measured |
+
+Notes to the table:
+
+- `soc%` is the SOC ×10 divided by 10 as an **integer** (12.9 % → 12). The hand-off therefore happens as
+  soon as the pack falls below `L + 1`, which shows up as `L + 0.9 %`, not as `L`.
+- `L = 100 − DoD`; the Control limits the cutoff to 12–70 % (app range DoD 30–88 %, default 12 %).
+  Until the Control has sent a DoD the BMS default is DoD 90 (`0x5A`), i.e. `L = 10`.
+- The threshold is only recalculated at a pack change; a stale value lets a pack run below `L`
+  (details: `BMS/VNSD_BMS_Pack_Rotation_Taper_v118.md` §5.3).
+- Verified by byte search and decompilation only. Not compared for A 109: the CAN heartbeat path that
+  updates `g_dischargeLimitPct` at runtime (present in A 1105 and D 118, absent in D 117.7).
+
+**E3:** own BMS firmware. The archive holds the images 106, 110, 112, 113 and 115; 115 is decompiled
+(`BMS/VNSE3_BMS_FW_v115_Full_Analysis.md`). It reports one pack and has no pack selection or rotation, so
+the threshold table above does not apply. The archive contains no taper code. The E3 taper is therefore
+unknown, and the Modbus address of the current limit on the E3 is not yet evidenced.
 
 ## 4. Firmware Bugs Across the Models
 

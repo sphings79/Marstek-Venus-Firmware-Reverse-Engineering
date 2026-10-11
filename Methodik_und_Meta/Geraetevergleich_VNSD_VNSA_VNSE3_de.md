@@ -409,13 +409,33 @@ Modellen gleich gebaut:
 | A 150 | `min(P_bms, 2500)`, wie D 149.2/150; Gesamtdeckel 2400 statt 4000 |
 | A 1509 | `ac + P_bms`, wie D 147 (Byte-Vergleich bei `0x0801ecb4`) |
 
-**BMS:** Das A-BMS (109/1105) enthält laut Byte-Suche dieselbe 10-%-Zielfunktion
-(`PackSelect_ChargeStepTarget` im D). Die Entladeschwelle mit DoD-Untergrenze und die Modi 2/3
-unter 11 % gibt es nur im D 118.
+**BMS — Pack-Wechselschwelle beim Entladen (korrigiert 2026-10-11):** Die frühere Aussage, die
+Entladeschwelle mit DoD-Untergrenze und die Modi 2/3 unter 11 % gebe es „nur im D 118“, war falsch.
+Je BMS-Version (nur Mehrpack-Modelle; Image-Namen im Firmware-Archiv):
 
-**E3:** eigene BMS-Firmware, kein Image. Das Archiv 106–115 enthält keinen Code für
-Pack-Auswahl oder Taper. Der E3-Taper ist deshalb unbekannt, und die Modbus-Adresse des
-Stromlimits beim E3 ist noch nicht belegt.
+| Modell | BMS-FW | `PackSelect_DischargeStepThreshold` | Wechsel auf das vollste Pack bei (Cutoff 12 %) | `ChargeStepTarget`, Modi 1/2/3 | Beleg |
+|---|---|---|---|---|---|
+| D | 117.7 (`1177`) | feste Stufentabelle `max(10, ⌊(soc% − 10) / 10⌋ · 10)`, **ignoriert** die eingestellte Entladegrenze | etwa **10,9 %**, unabhängig vom Cutoff | vorhanden | Dekompilat `0x08009354` |
+| D | 118 | `L = 100 − DoD`, Schwelle `max(soc% − 10, L)`, bei `soc% ≤ L` → `L − 1` | **Cutoff + 0,9 %** (12,9 % bei Cutoff 12 %) | vorhanden | Dekompilat `0x080093bc`; am 10./11.10.2026 an einem Venus D (BMS 118) gemessen |
+| A | 109 | Funktionskörper **Byte für Byte identisch** zu A 1105 (`0x08009384`) | **Cutoff + 0,9 %** | identisch zu 1105 (`ModeBySoc`, `Mode1/2/3`, `ChargeStepTarget`, `Discharge_StepRotate`) | Byte-Vergleich, nicht dekompiliert, nicht gemessen |
+| A | 1105 | gleiche Formel wie D 118, nur Adressen anders | **Cutoff + 0,9 %** | vorhanden | Dekompilat `0x0800942c`, nicht gemessen |
+
+Anmerkungen zur Tabelle:
+
+- `soc%` ist der SOC ×10 geteilt durch 10 als **Ganzzahl** (12,9 % → 12). Der Wechsel passiert deshalb,
+  sobald das Pack unter `L + 1` fällt, und zeigt sich als `L + 0,9 %`, nicht als `L`.
+- `L = 100 − DoD`; die Control begrenzt den Cutoff auf 12–70 % (App-Bereich DoD 30–88 %, Standard 12 %).
+  Bis die Control ein DoD gesendet hat, gilt im BMS der Standard DoD 90 (`0x5A`), also `L = 10`.
+- Die Schwelle wird nur bei einem Packwechsel neu berechnet; ein veralteter Wert lässt ein Pack unter
+  `L` laufen (Einzelheiten: `BMS/VNSD_BMS_Pack_Rotation_Taper_v118_de.md` §5.3).
+- Nur per Byte-Suche und Dekompilat geprüft. Beim A 109 nicht verglichen: der CAN-Heartbeat-Pfad, der
+  `g_dischargeLimitPct` zur Laufzeit aktualisiert (in A 1105 und D 118 vorhanden, in D 117.7 nicht).
+
+**E3:** eigene BMS-Firmware. Das Archiv enthält die Images 106, 110, 112, 113 und 115; 115 ist
+dekompiliert (`BMS/VNSE3_BMS_FW_v115_Vollanalyse_de.md`). Es meldet ein Pack und hat keine
+Pack-Auswahl und keine Rotation, die Schwellentabelle oben gilt hier also nicht. Das Archiv enthält keinen
+Taper-Code. Der E3-Taper ist deshalb unbekannt, und die Modbus-Adresse des Stromlimits beim E3 ist noch
+nicht belegt.
 
 ## 4. Firmware-Defekte über die Modelle
 
