@@ -2,7 +2,7 @@
 
 > 🇩🇪 Deutsche Version: [VNSA_Micro_FW_v1211_Vollanalyse_de.md](VNSA_Micro_FW_v1211_Vollanalyse_de.md)
 
-**Status:** 2026-10-02.
+**Status:** 2026-10-02; §4.1.6 (CAN receive filters and update start conditions) added 2026-10-12.
 **Image:** `1211_micro_VNSA-0_VA_inv_app_1211_0520_ota_193621.bin` (Venus A inverter board, "VA_inv_app").
 **Decompilates/Listing:** `Dekompilate/VNSA_Micro_1211/` (local only, not in the repo): 409 functions, all named
 and typed, `listing/` with ITCM + flash raw disassembly and `globals_and_registers.txt` (1253 named RAM/peripheral symbols).
@@ -46,7 +46,7 @@ inverter), `../Control_FW/VNSA_Control_FW_v1509_Full_Analysis.md`, `../BMS/VNSA_
 
 | # | Question | Answer (details) |
 |---|---|---|
-| 1 | CAN receive path, accepted commands, telemetry | FlexCAN RX MB16..31 → queue (50) → `CAN_RxDispatch`. Accepted: class 2 func 0x01/0x02/0x03/0x04/0x06/0xCB/0xCC/0xFE/0xFF; class 4 func 0x01-0x07, 0x10-0x13, 0x16, 0x50-0x58, 0x60, 0xC1-0xC3, 0xCB; 0xCE OTA (any class); BMS frames 0x18n_AA01. Ignored: class-4 0x08, 0x0A, 0x14, 0x15, 0x17, **0x18, 0x30-0x3E, 0x40-0x43**; class-2 0x05, **0xFB**. Telemetry: func 0x10 (48 B, layout §4.1.4), 0x11 (8 B status), 0x12 (6 B ATE-aging state/results = "get old"), 0x13 (4 B stored aging results), 0x54 (1 B, garbage), 0xCB (8 B versions). **No 0x40-0x43 and no 0x14 frames are sent** (§4.1). |
+| 1 | CAN receive path, accepted commands, telemetry | FlexCAN RX MB16..31 → queue (50) → `CAN_RxDispatch`. Accepted: class 2 func 0x01/0x02/0x03/0x04/0x06/0xCB/0xCC/0xFE/0xFF; class 4 func 0x01-0x07, 0x10-0x13, 0x16, 0x50-0x58, 0x60, 0xC1-0xC3, 0xCB; 0xCE OTA (no class/node check in software, but the FlexCAN RX masks only pass id byte1 0x40/0x41/0x21, §4.1.6); BMS frames 0x18n_AA01. Ignored: class-4 0x08, 0x0A, 0x14, 0x15, 0x17, **0x18, 0x30-0x3E, 0x40-0x43**; class-2 0x05, **0xFB**. Telemetry: func 0x10 (48 B, layout §4.1.4), 0x11 (8 B status), 0x12 (6 B ATE-aging state/results = "get old"), 0x13 (4 B stored aging results), 0x54 (1 B, garbage), 0xCB (8 B versions). **No 0x40-0x43 and no 0x14 frames are sent** (§4.1). |
 | 2 | BMS rescue handshake | 0x03410110 = frame 3 of the func-0x10 telemetry reply, data[1] = grid voltage high byte; sent only when the Control polls func 0x10. No reaction to 0x100101AA, never sends 0x00210100 (§4.2). |
 | 3 | Power class / limits / modes / register handler | No power-class logic; fixed 1450 W limits (EEPROM 0x203/0x205), CAN 0x03/0x04 accept < 1451 W. Work modes 0 default, 1 manual, 2 debug, 3 aging, 4 ATE aging, 12 CAN test mode, 13 voltage source (EEPROM 0x14). Backup = flag (CAN class-4 func 0x02 in mode 0 / func 0x57 in mode 1, EEPROM 0x11); off-grid output via state 30 / standard state 200. No Modbus register handler (§5). |
 | 4 | Error/warning words | err1 bits 0-4, 7, 20, 21; err2 bits 5, 6, 7, 8, 9, 11, 13; warn never set (§6). |
@@ -123,7 +123,8 @@ The RAM vector table (`IRQ_InitRamVectorTable`) is filled with `IRQ_DefaultHandl
 
 ### 4.1 CAN (500 kbit/s, 29-bit ids)
 
-Driver: FlexCAN at 0x40074000 (8 MHz clock), handle 0x201204A0, MB0..15 TX round robin, MB16..31 RX. RX ISR → queue
+Driver: FlexCAN at 0x40074000 (8 MHz clock), handle 0x201204A0, MB0..15 TX round robin, MB16..31 RX with individual
+acceptance masks (§4.1.6). RX ISR → queue
 `g_canRxQueue` (0x20120518, 50 × 16 B: id, data[8], dlc); TX queue 0x2012084C (300 × 16 B), one frame every 10 ms
 (`CAN_CommTask` → `CAN_TransmitFrame`).
 
@@ -222,7 +223,105 @@ Frames with index 1..6 carry 8 bytes each; the Control copies them 1:1 into its 
 Frame index 0: start (image length, CRC16) → erase 232 pages from 0x08046000; index 1: 8 data bytes into a 1 KB buffer;
 index 2: block end with CRC16 (CRC unit) → program 1 KB at 0x08046000 + block × 0x400, reply status 1/2/3. After the last
 block the CRC over the whole image is checked, `OTA_WriteBootDescriptor` writes {0x08046000, length, 1, CRC} to
-0x08040000 and `App_MainTask` resets (`SCB_SystemResetOtaApply`). A 60 s timeout aborts the session.
+0x08040000 and `App_MainTask` resets (`SCB_SystemResetOtaApply`) about 3 s after the last 0xCE frame. Without a verified
+image the session is aborted after about 3 s without any 0xCE frame (not 60 s as stated in an earlier version of this
+document); details and receive filters in §4.1.6.
+
+#### 4.1.6 Which 0xCE frames reach the micro (receive filters, update start conditions)
+
+Question: can a CAN update meant for another node (BMS packs, other micros, MPPT) start the update routine of this
+micro? **Answer: no for BMS packs and for any node address other than class 4 node 0/1 and class 2 node 1 — those
+frames are rejected by the CAN controller before software sees them. PROVEN from code.** The software path itself has
+no address check, so everything that does pass the filters is treated as an update for this micro.
+
+**CAN controller.** The register layout used by the driver is NXP FlexCAN: MCR at +0x00 (FRZ/HALT/SOFTRST/MAXMB,
+IRMQ = bit 16, SRX_DIS = bit 17), CTRL1 +0x04, RXMGMASK/RX14MASK/RX15MASK +0x10/+0x14/+0x18, IMASK1 +0x28, IFLAG1 +0x30,
+CTRL2 +0x34, message buffers from +0x80, individual masks RXIMR from +0x880. The NS800RT therefore carries a
+FlexCAN-compatible controller (consistent with §1).
+
+**Filter set-up (`CAN_Init` 0x080088c0, identical re-init in `CAN1_IRQHandler`).** `FLEXCAN_Init` runs with
+individual RX masking enabled (config byte +0x248 = 1 → MCR.IRMQ = 1; self reception disabled) and 16 RX
+message-buffer descriptors from `g_canFlexcanRxMbConfigArray` (0x20120010, 16 × 24 B, initial values from the
+scatter-loaded `.data`). `FLEXCAN_SetRxMbConfig` writes id and IDE into each MB, sets it to RX-empty and writes the mask
+into RXIMR[mb]. RX mailboxes 0..15 are not configured for reception (they are the TX round robin; `CAN_TransmitFrame`
+only touches MB 0..15). No other code writes the RX mailboxes or RXIMR.
+
+| RX MB | Extended id | Mask | Frames that pass |
+|---|---|---|---|
+| 16–23 | 0x00004100 | 0x0000FE00 | id byte1 = 0x40 or 0x41 (class 4, node 0 or 1), any function/source/frame index |
+| 24–25 | 0x1801AA01 | 0x1FF0FFFF | BMS info frames 0x180nAA01 (§4.2) |
+| 26–31 | 0x00002100 | 0x0000FF00 | id byte1 = 0x21 (class 2, node 1) |
+
+CTRL2.EACEN stays 0, so the IDE bit is always compared: standard-id frames never match. Everything else is not stored
+and raises no interrupt.
+
+**What the Control sends (A Control 150 / 150.9 / 151, functionally identical; same code in D Control 151).**
+`ProcessFirmwareUpdateCommand` stores up to three pending CAN update jobs; the job type byte is copied into the target
+class: slot 0 "mppt" = class 2, slot 1 "bms" = class 3, slot 2 "venus" = class 4 (`CAN_Select_Master_Node` accepts only
+classes 2..4). `CAN_Update_Init` stops the inverter output on the Control side for every target. All frames are built by
+`Register_WriteCategory0xCE` → `CAN_Build_Arbitration_ID(0xCE, node, class, frame index)`:
+
+`id = frame_index << 24 | 0x01 << 16 | class << 12 | node << 8 | 0xCE` (byte2 = source 0x01 = Control).
+
+| Job | node | Ids on the bus (start / data / block end) | Reaches the A micro? |
+|---|---|---|---|
+| "venus" (class 4) | 1 | 0x000141CE / 0x010141CE / 0x020141CE | yes (MB16–23) — intended target |
+| "mppt" (class 2) | 1 | 0x000121CE / 0x010121CE / 0x020121CE | yes (MB26–31) — on the Venus A the class-2 node *is* this micro (§4.1.1) |
+| "bms" (class 3) | 0xF (all packs, no version mismatch) or n+1 (single pack whose version differs) | 0x00013FCE …, 0x00013nCE … | **no** — byte1 0x3F/0x3n matches no RX mask |
+
+Payloads: start = u32 image length + u16 CRC16 (6 B), data = 8 B, block end = u16 block CRC + u16 block number (the
+micro programs at block number × 0x400). The BMS replies with byte1 = 0x01 (class 0 node 1, the Control) and byte2 =
+0x30 | slot (`CAN_Build_Arbitration_ID` of BMS 1105), pack-to-pack 0xCE traffic has byte1 = 0x3n; neither passes the
+micro's masks.
+
+**BMS side (A BMS 1105).** One filter bank with id 0 / mask 0 (accept all); the software filter is
+`CAN_RX_Command_Dispatcher`: class 3 only, node = own slot, 0xF or 0; 0xCE additionally requires the high nibble of byte2
+to be 0 before `BMS_OTA_Flash_Writer` runs (any class-3 0xCE frame sets `g_otaInProgressFlag`). Update frames for class
+2/4 are therefore ignored by the packs as well.
+
+**What the micro checks before erasing (`CAN_RxDispatch`, function code 0xCE).**
+
+| Frame index (byte3 bits 0–4) | Condition | Action |
+|---|---|---|
+| any | – | `g_otaStallSeconds` = 0 (keeps a running session alive) |
+| 0 (start) | only: session not active (`g_otaFlags` bit 2 = 0) | `Inv_EpwmForceTrip`, `Mppt_EpwmDisable`, `ShellCmd_stop`, `g_cfgParallelMode` = 1 (inverter start blocked), clear OTA state, **erase 232 × 1 KB from 0x08046000** (synchronously in the dispatcher), store length + CRC, ack `byte1<<16 \| byte2<<8 \| 0xCE` with data 01 00 01 01, `g_otaFlags` \|= 5 |
+| 1 (data) | `g_otaFlags` bit 0 | append 8 bytes to the 1 KB stage buffer |
+| 2 (block end) | none (no session check) | CRC16 of the stage buffer = received CRC → program 1 KB at 0x08046000 + block × 0x400 (writes outside 0x08000000–0x0807FFFF are refused by `Flash_ProgramDoubleWords`, so only the staging area is reachable); after the last block CRC16 over `length` bytes → `OTA_WriteBootDescriptor` (0x08040000), `g_otaFlags` bit 3 |
+
+No check of class, node, source, device type, firmware version, image length or header before the erase. The only
+integrity checks are the CRC16 values computed with the on-chip CRC unit (0x40082000, seed 0xFFFF) per 1 KB block and
+over the whole image; no signature, no encryption, no version/rollback check. The bootloader that installs the staged
+image is not part of this image, so whether it checks anything beyond the descriptor is **OPEN**.
+
+`App_MainTask` supervises a session: once per second without a 0xCE frame `g_otaStallSeconds` is incremented; at 3 it
+either resets into the bootloader (image verified) or aborts: `ShellCmd_start` (MPPT on again), `g_cfgParallelMode` = 0
+(set to 0 regardless of its value before the update) and OTA state cleared. The inverter PWM itself is restarted by the
+normal state machine.
+
+**Consequences.**
+
+- A BMS update (class 3, broadcast 0xF or single pack) cannot start the micro's update routine — **PROVEN** (hardware
+  masks above; the BMS dispatcher has the mirror-image class-3 check).
+- Updates for other micros (class 4 node ≥ 2) or other class-2 nodes (node ≠ 1) are also rejected in hardware —
+  **PROVEN**. The Control's update code always uses node 1 for classes 2 and 4, so such frames are not generated anyway.
+- An update job of type "mppt" (class 2) on a Venus A is received and executed by this micro exactly like a "venus" job:
+  PWM off, staging area erased, image programmed and installed if both CRC16 values match — **PROVEN** for the micro
+  side. This is consistent with the A design (the class-2 MPPT node is this micro); whether the cloud ever issues an
+  "mppt" job to a Venus A, and what the bootloader does with an image built for another device, is **OPEN**.
+- Any device on the internal CAN bus can stop power conversion for at least ~3 s and erase the staging area with one
+  start frame to byte1 0x40/0x41/0x21 (no authentication) — **PROVEN** from code; same class of finding as the
+  unauthenticated shell over CAN (§8).
+
+**Comparison with Venus D micro 116 and E3 micro 119 (read-only).** Both use the STM32G474 FDCAN with extended filters
+0x4000/0xFF00 and 0x4100/0xFF00 (byte1 0x40 or 0x41), the BMS filter (D 0x1801AA01/0x1FF0FFFF, E3 0x1800AA00/0x1FF0FF00),
+a standard-id filter 0x300/0x300 and "reject non-matching" global filter (`FDCAN1_ConfigFiltersAndMailboxes`,
+`FDCAN1_Init`). Class-2 and class-3 update frames therefore do not reach them either. Their 0xCE start additionally
+checks the announced image size (100 bytes … half the flash − 16 KB) before `OTA_SelfUpdate_StateMachine` erases, and
+the image is checked with CRC16/Modbus — no signature either. **A-specific** is only the additional class-2 node-1
+filter (because the MPPT stage sits in this micro) and the unconditional erase/PWM trip on the first start frame. Side
+note for D/E3 (INFERRED from the filter and dispatcher code, not tested): their standard-id filter passes 11-bit ids
+0x300–0x3FF and the dispatcher takes the low byte as the function code, so a standard frame 0x3CE would enter the 0xCE
+start path; no firmware in the set sends standard ids on this bus.
 
 ### 4.2 BMS frames and the "PV rescue" handshake
 
@@ -381,14 +480,15 @@ fault, 53 bus voltage fluctuation, 54 state switch timeout, 55/56 hardware prote
 
 Only the CAN path 0xCE (§4.1.5) into the staging area 0x08046000 plus boot descriptor at 0x08040000; the bootloader
 (not part of this image) installs it. No YMODEM/UART update and no BMS relay update in this image (unlike the D micro).
-Integrity: CRC16 only.
+Integrity: CRC16 only. Accepted senders and start conditions: §4.1.6.
 
 ## 8. Security notes
 
 - Shell user "letter V1211" without password; shell over CAN (func 0xC2/0xC3) gives everybody on the internal CAN bus
   (and the Control's debug forwarding) full console access: `reset_memory`, `set_mode`, `power_cfg` open-loop PWM
   commands, `io_set` (relays), `llc_feq` …
-- OTA over CAN accepts any image with a matching CRC16 — no signature.
+- OTA over CAN accepts any image with a matching CRC16 — no signature. The first start frame (no address, length or
+  device check) trips the PWM and erases the staging area; class-3 (BMS) update frames are filtered in hardware (§4.1.6).
 - CAN test commands 0x50–0x58 (mode 12) and the aging modes run the power stage outside normal supervision.
 
 ## 9. Differences to the Venus D inverter firmware (v116)
@@ -426,3 +526,4 @@ Integrity: CRC16 only.
 3. MPPT tracking algorithm variant and the meaning of the five energy-counter levels (date hierarchy hypothesis).
 4. Reason code 5 of err2 bit 7 and the exact relay/voltage condition behind err2 bit 13.
 5. PE-voltage fault (MPPT bit 10/11) — insulation / PE monitoring hypothesis.
+6. Checks done by the A micro bootloader before it installs a staged image (bootloader not in the image, §4.1.6).

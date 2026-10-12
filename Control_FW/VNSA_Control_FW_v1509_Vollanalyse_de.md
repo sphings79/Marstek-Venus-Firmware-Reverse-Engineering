@@ -14,13 +14,14 @@
 ## 0. Zusammenfassung
 
 - **Gleiche Codebasis wie die Venus D.** 95,2 % des Images sind bytegleich mit D v151, sobald Pointer und BL-Offsets maskiert
-  werden (282 Segmente). Von den 1956 D-Funktionen sind 1899 im A instruktionsgleich, 34 weichen im Detail ab, 8 liegen mit
+  werden (282 Segmente). Von den 1956 D-Funktionen sind 1898 im A instruktionsgleich, 35 weichen im Detail ab, 8 liegen mit
   gleicher Logik an anderer Adresse und **15 fehlen** (wegkompiliert). Das A hat **keine eigene Funktion**, die das D nicht hat.
 - **RAM-Layout identisch zu D v151.** `.data` (12 032 B), `.bss` und das externe SRAM (`.xmc_bss`) haben dieselben Größen; alle
   4526 RAM/XMC-Pointer im gematchten Code sind identisch; das initialisierte `.data` unterscheidet sich nur in Flash-Pointern.
   Jede RAM-Variable liegt also an derselben Adresse wie beim D (Namen 1:1 übernommen).
 - **Modbus-Registerkarte identisch zu D v151.** Die Deskriptortabelle (`g_modbusRegDescTable` @ 0x2000034C, 246 Einträge,
-  30000–38014) ist bytegleich, `Write_Handler` (Holding-Register) und der Lesepfad sind instruktionsgleich. Anders ist nur,
+  30000–38014) ist bytegleich, der Lesepfad ist instruktionsgleich und `Write_Handler` (Holding-Register) hat denselben Registersatz
+  und Code mit einer A-spezifischen Konstante (44003 nimmt höchstens 1500 W an, siehe §5). Ansonsten ist nur anders,
   was die RAM-Variablen füllt (der Wechselrichter des A ist ein anderes Gerät, siehe §5).
 - **Die Geräteunterschiede sind Compile-Zeit-Konstanten**, keine eigenen Codepfade: Leistungsgrenzen (1500 W statt 2500 W),
   Leistungsklassen (800/1200/1500 W), 13 Zellen pro Akkupack, RS485-Port auf USART1 ohne Driver-Enable-Pin, kein
@@ -33,7 +34,7 @@
 
 | # | Frage | Antwort A 1509 | Beleg |
 |---|---|---|---|
-| 1 | Modbus-Register anders? | **Nein.** Deskriptortabelle bytegleich (246 Einträge inkl. 32102 `i16`); `Write_Handler` @ 0x08056960 instruktionsgleich (inkl. 46000 = 0x5100 Debug-Hintertür, 47001, 45000-Block). Register 30200 liest das Versionswort @ 0x08010000 = **1509**. | §5 |
+| 1 | Modbus-Register anders? | **Nein.** Deskriptortabelle bytegleich (246 Einträge inkl. 32102 `i16`); Gleicher Registersatz. `Write_Handler` @ 0x08056960 gleicher Code wie D 151 (inkl. 46000 = 0x5100 Debug-Hintertür, 47001, 45000-Block) bis auf eine Konstante: ein Schreibzugriff auf 44003 über **1500 W** wird abgewiesen (D: 2500 W); 44002 nimmt weiterhin bis 2500 W an (siehe §5). Register 30200 liest das Versionswort @ 0x08010000 = **1509**. | §5 |
 | 2 | BLE anders? | Gerätename `MST_VNSA_` + 4 ID-Bytes. Cmd 0x15 (Leistungsklasse): 800 W → Klasse 1, **1200 W → Klasse 4, 1500 W → Klasse 5** (D: 800 → 1, 1500/2200 → 3, 2500 → 0). Cmd 0x16 max. Ladeleistung 300–**1500** W, Cmd 0x17 max. Entladeleistung ≤ **1500** W. | §4.1 |
 | 3 | AC-Grenzen? | Max. Lade-/Entladeleistung überall auf **1500 W** begrenzt (`Config_Write_U16_0x202`, `Config_Write_U16`, `Config_ClampDefaults_ParamBlock`, MQTT/JSON-RPC, Fernkommando ±1500 W). Obere Grenze des Einspeisebegrenzers **2400 W** (D: 4000 W). | §4.1 |
 | 4 | Firmware-Update per BLE möglich? | Ja, gleicher OTA-Code wie D 151; die Modellprüfungen vergleichen gegen `VNSA-0` (`OTA_Is_VNSA_Model`, `OTA_Slot_Config_Validate`). | §4.6 |
@@ -78,15 +79,18 @@ XMC 0x080633EC → 0x60000000 (0x26AF8), .bss Zero-Init 0x1F110 @ 0x20002F00.
 
 | Kategorie | Funktionen | Bedeutung |
 |---|---|---|
-| instruktionsgleich | 1899 | gleiche Bytes bis auf Aufruf-/Pointerziele; Namen, Prototypen, Plates, Lokale aus D 151 übernommen |
-| geändert | 34 | gleiche Funktion, andere Konstanten oder kleine Codeänderungen (§4) |
+| instruktionsgleich | 1898 | gleiche Bytes bis auf Aufruf-/Pointerziele; Namen, Prototypen, Plates, Lokale aus D 151 übernommen |
+| geändert | 35 | gleiche Funktion, andere Konstanten oder kleine Codeänderungen (§4; inkl. `Write_Handler`, siehe §5) |
 | verschoben | 8 | gleiche Logik an anderer Adresse: `Factory_Reset`, `RTC_Peripheral_Init`, `RS485_UART_Config_Init` (A-Variante), `RS485_UART_SendByte` (A-Variante), `AI_ScheduleQuery_Response_Send` (ältere Variante), `Stub_Return_One`, `MQTT_Transport_NullCallback`, `Util_NoOp_StartupHook` |
 | fehlt im A | 15 | siehe §4.4 |
 | nur im A | 0 | — |
 
 Gegenprobe: Für jedes Funktionspaar ist die Folge der Aufrufziel-Namen identisch, abgesehen von den Aufrufen der fehlenden
 Funktionen. Vergleichsmethode: Offline-Bytesegmente mit maskierten Pointern/BL-Offsets, danach namensnormierte
-Instruktionsdiffs der 34 geänderten Funktionen.
+Instruktionsdiffs der geänderten Funktionen.
+
+**Korrektur (2026-10-11):** `Write_Handler` war ursprünglich als instruktionsgleich gezählt; er unterscheidet sich von D 151 in einer
+Vergleichskonstante (44003-Grenze 0x5DC statt 0x9C4, §5). Die Zahlen oben wurden von 1899/34 auf 1898/35 korrigiert.
 
 ## 4. Funktionale Unterschiede zur Venus D v151
 
@@ -105,8 +109,16 @@ Instruktionsdiffs der 34 geänderten Funktionen.
 | `Remote_Power_Command_Execute` | ±1500 W | ±2500 W |
 | `Grid_Export_Power_Limiter` obere Grenze | 2400 W | 4000 W |
 
-`Write_Handler` selbst ist unverändert, ruft aber die beiden `Config_Write_U16*`-Funktionen auf; Modbus-Schreibzugriffe auf die
-Leistungsgrenzen sind beim A daher ebenfalls auf 1500 W begrenzt.
+Modbus-Schreibzugriffe auf die Leistungsgrenzen über `Write_Handler` (korrigiert 2026-10-11, die frühere Aussage „Write_Handler
+unverändert, alle Modbus-Schreibzugriffe auf 1500 W begrenzt" war falsch):
+
+| Register | A 1509 | D 151 |
+|---|---|---|
+| 44002 max. Ladeleistung (`uVar == 0xABE2`) | angenommen bis **2500 W** (darüber Exception 3); der **Rohwert** geht an den Wechselrichter (`Inverter_Write_Reg_0x04_U32Value`) und in den RAM-Cache, den 44002 zurückliest; nur die EEPROM-Kopie (0x202) wird von `Config_Write_U16_0x202` auf 1500 W begrenzt | angenommen bis 2500 W, EEPROM-Grenze 2500 W |
+| 44003 max. Entladeleistung (`0xABE3`) | **über 1500 W abgewiesen (Exception 3)**; ≤ 1500 W geht an den Wechselrichter (`Inverter_Write_Reg_0x03_U32Value`), RAM-Cache und EEPROM 0x204 | über 2500 W abgewiesen |
+
+Beim A wird also z. B. ein Modbus-Schreibzugriff von 2000 W auf 44002 angenommen und unbegrenzt an den Wechselrichter weitergegeben,
+bis zum nächsten Neustart (danach gilt der EEPROM-Wert 1500 W); das A-Micro begrenzt ohnehin auf 1450 W (A-Micro-Analyse).
 
 ### 4.2 Akku
 
@@ -160,7 +172,8 @@ Das A nutzt **USART1 (PA9 TX / PA10 RX, IRQ 37, 115200 8N1)** ohne Driver-Enable
 - **Lesebereich:** `g_modbusRegDescTable` @ 0x2000034C, 246 × 12 B, bytegleich mit D 151 (dekodierte CSV oben verlinkt; die Spalte
   `notes` nennt die RAM-Variable im A-Programm). `FC03_Read_Handler` @ 0x080232F4 und `Read_Serializer` @ 0x08055860 sind
   instruktionsgleich, die bekannten D-Fehler (Vorzeichen 32101, MBAP-Länge der Exception-Frames) gelten also auch für das A.
-- **Schreibbereich:** `Write_Handler` @ 0x08056960 instruktionsgleich (gleiche Aufrufziele und Konstanten). Der 45000-Kommandoblock,
+- **Schreibbereich:** `Write_Handler` @ 0x08056960 hat denselben Code und dieselben Aufrufziele wie D 151 bis auf eine Konstante: 44003
+  (max. Entladeleistung) wird über 1500 W abgewiesen (D: 2500 W); 44002 (max. Ladeleistung) nimmt bis 2500 W an, siehe §4.1. Der 45000-Kommandoblock,
   46000 = 0x5100 (Debugmodus → Shell auf RS485 und TCP 8091), 46500–46544 Zeitplan (CAN 0x30–0x3E), 47001 (CAN 0x18) verhalten sich wie beim D.
 - **Folge für unbekannte A-Register:** Ein Register liest dieselbe RAM-Variable wie beim D. Die Variablen des Wechselrichter-/MPPT-Blocks
   (z. B. 30000–30040, 32100–32302, 35000–35112, 36000–36103) werden von den identischen CAN-Parsern aus Frames gefüllt, die der
@@ -222,6 +235,11 @@ und TCP 8091, Shell-Benutzer mit leerem Passwort, WLAN-Werkszugangsdaten des Her
   davon 99 zusätzlich `NAME_LOW_CONFIDENCE` (vom D übernommen, wo der Zweck nicht ganz klar ist).
 - RAM-Variablen, Peripherieregister und ihre Kommentare wurden adressgleich von D 151 kopiert (identisches Layout); Kommentare mit
   D-spezifischem Inhalt (VNSD-Strings, 2500 W, USART2, EEPROM 0x441, D-Flashadressen) wurden für das A korrigiert.
+- Nacharbeit 2026-10-11 (wie bei D 151 / A 151): `Inverter_RegDirty_Mark_DischgVolt` → `Inverter_RegDirty_Mark_GridPermit` und
+  `Inverter_RegDirty_Mark_BatteryParams` → `Inverter_RegDirty_Mark_PvVoltage` (benannt nach der Aufrufbedingung in
+  `Inverter_Apply_BatteryParams`; Muster in diesem Image geprüft). Die „Inverter-Dirty-Bitmap" ist die Frontpanel-LED-Bitmap eines
+  TM1650-artigen Treibers (I2C-Digitregister 0x68/0x6A/0x6C/0x6E); Plate-Kommentare der LED-Wrapper und Globals aktualisiert, Plate von
+  `Write_Handler` korrigiert (44003-Grenze). Gates erneut gelaufen: alle bestanden; Export erneuert.
 
 ## 12. Offene Fragen
 
@@ -234,5 +252,5 @@ und TCP 8091, Shell-Benutzer mit leerem Passwort, WLAN-Werkszugangsdaten des Her
 
 Offline-Segmentkarte der beiden Images (maskierte Pointer und BL-Offsets), `vna_layout_sync.py` / `vna_port_segments.py` /
 `vna_port_signatures.py` / `vna_copy_by_address.py` / `vna_port_refs.py`, um Layout, Namen, Prototypen, Globals, Referenzen und
-Flow-Overrides von D 151 zu übernehmen, danach manuelle Analyse der 34 geänderten und 8 verschobenen Funktionen, Typisierung der
+Flow-Overrides von D 151 zu übernehmen, danach manuelle Analyse der geänderten und 8 verschobenen Funktionen, Typisierung der
 Lücken und die Prüf-Gates. Die Hilfsskripte liegen nur lokal (nicht im Repo).

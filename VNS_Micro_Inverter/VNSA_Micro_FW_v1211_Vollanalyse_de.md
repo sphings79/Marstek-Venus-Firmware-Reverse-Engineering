@@ -2,7 +2,7 @@
 
 > 🇬🇧 English version: [VNSA_Micro_FW_v1211_Full_Analysis.md](VNSA_Micro_FW_v1211_Full_Analysis.md)
 
-**Stand:** 2026-10-02.
+**Stand:** 2026-10-02; §4.1.6 (CAN-Empfangsfilter und Startbedingungen des Updates) ergänzt am 2026-10-12.
 **Image:** `1211_micro_VNSA-0_VA_inv_app_1211_0520_ota_193621.bin` (Venus-A-Wechselrichterplatine, "VA_inv_app").
 **Dekompilate/Listing:** `Dekompilate/VNSA_Micro_1211/` (nur lokal, nicht im Repo): 409 Funktionen, alle benannt
 und typisiert, `listing/` mit ITCM- und Flash-Rohdisassembly sowie `globals_and_registers.txt` (1253 benannte RAM-/Peripherie-Symbole).
@@ -46,7 +46,7 @@ Image-Basis, korrigiert in §6), [VNSD_Micro_FW_v116_Vollanalyse_de.md](VNSD_Mic
 
 | # | Frage | Antwort (Details) |
 |---|---|---|
-| 1 | CAN-Empfangspfad, akzeptierte Befehle, Telemetrie | FlexCAN-RX-MB16..31 → Queue (50) → `CAN_RxDispatch`. Akzeptiert: Klasse 2 Funktion 0x01/0x02/0x03/0x04/0x06/0xCB/0xCC/0xFE/0xFF; Klasse 4 Funktion 0x01–0x07, 0x10–0x13, 0x16, 0x50–0x58, 0x60, 0xC1–0xC3, 0xCB; 0xCE OTA (jede Klasse); BMS-Frames 0x18n_AA01. Ignoriert: Klasse 4 0x08, 0x0A, 0x14, 0x15, 0x17, **0x18, 0x30–0x3E, 0x40–0x43**; Klasse 2 0x05, **0xFB**. Telemetrie: Funktion 0x10 (48 B, Aufbau §4.1.4), 0x11 (8 B Status), 0x12 (6 B ATE-Alterungsstand/-ergebnisse = „get old"), 0x13 (4 B gespeicherte Alterungsergebnisse), 0x54 (1 B, Müll), 0xCB (8 B Versionen). **Es werden keine 0x40–0x43- und keine 0x14-Frames gesendet** (§4.1). |
+| 1 | CAN-Empfangspfad, akzeptierte Befehle, Telemetrie | FlexCAN-RX-MB16..31 → Queue (50) → `CAN_RxDispatch`. Akzeptiert: Klasse 2 Funktion 0x01/0x02/0x03/0x04/0x06/0xCB/0xCC/0xFE/0xFF; Klasse 4 Funktion 0x01–0x07, 0x10–0x13, 0x16, 0x50–0x58, 0x60, 0xC1–0xC3, 0xCB; 0xCE OTA (in Software keine Klassen-/Knotenprüfung, aber die FlexCAN-RX-Masken lassen nur ID-Byte1 0x40/0x41/0x21 durch, §4.1.6); BMS-Frames 0x18n_AA01. Ignoriert: Klasse 4 0x08, 0x0A, 0x14, 0x15, 0x17, **0x18, 0x30–0x3E, 0x40–0x43**; Klasse 2 0x05, **0xFB**. Telemetrie: Funktion 0x10 (48 B, Aufbau §4.1.4), 0x11 (8 B Status), 0x12 (6 B ATE-Alterungsstand/-ergebnisse = „get old"), 0x13 (4 B gespeicherte Alterungsergebnisse), 0x54 (1 B, Müll), 0xCB (8 B Versionen). **Es werden keine 0x40–0x43- und keine 0x14-Frames gesendet** (§4.1). |
 | 2 | BMS-Rettungs-Handshake | 0x03410110 = Frame 3 der 0x10-Telemetrie-Antwort, data[1] = High-Byte der Netzspannung; wird nur gesendet, wenn der Control Funktion 0x10 abfragt. Keine Reaktion auf 0x100101AA, sendet nie 0x00210100 (§4.2). |
 | 3 | Leistungsklasse / Grenzen / Modi / Register-Handler | Keine Leistungsklassen-Logik; feste 1450-W-Grenzen (EEPROM 0x203/0x205), CAN 0x03/0x04 akzeptieren < 1451 W. Betriebsarten 0 Standard, 1 manuell, 2 Debug, 3 Alterung, 4 ATE-Alterung, 12 CAN-Testmodus, 13 Spannungsquelle (EEPROM 0x14). Backup = Flag (CAN Klasse 4 Funktion 0x02 in Modus 0 / Funktion 0x57 in Modus 1, EEPROM 0x11); Off-Grid-Ausgang über Zustand 30 / Standardzustand 200. Kein Modbus-Register-Handler (§5). |
 | 4 | Fehler-/Warnwörter | err1 Bits 0–4, 7, 20, 21; err2 Bits 5, 6, 7, 8, 9, 11, 13; warn wird nie gesetzt (§6). |
@@ -123,7 +123,8 @@ Die RAM-Vektortabelle (`IRQ_InitRamVectorTable`) wird mit `IRQ_DefaultHandler` g
 
 ### 4.1 CAN (500 kbit/s, 29-Bit-IDs)
 
-Treiber: FlexCAN bei 0x40074000 (8-MHz-Takt), Handle 0x201204A0, MB0..15 TX reihum, MB16..31 RX. RX-ISR → Queue
+Treiber: FlexCAN bei 0x40074000 (8-MHz-Takt), Handle 0x201204A0, MB0..15 TX reihum, MB16..31 RX mit individuellen
+Akzeptanzmasken (§4.1.6). RX-ISR → Queue
 `g_canRxQueue` (0x20120518, 50 × 16 B: ID, data[8], DLC); TX-Queue 0x2012084C (300 × 16 B), ein Frame alle 10 ms
 (`CAN_CommTask` → `CAN_TransmitFrame`).
 
@@ -222,7 +223,109 @@ Die Frames mit Index 1..6 tragen je 8 Byte; der Control kopiert sie 1:1 in seine
 Frame-Index 0: Start (Image-Länge, CRC16) → 232 Seiten ab 0x08046000 löschen; Index 1: 8 Datenbytes in einen 1-KB-Puffer;
 Index 2: Blockende mit CRC16 (CRC-Einheit) → 1 KB bei 0x08046000 + Block × 0x400 programmieren, Antwortstatus 1/2/3. Nach dem
 letzten Block wird die CRC über das ganze Image geprüft, `OTA_WriteBootDescriptor` schreibt {0x08046000, Länge, 1, CRC} nach
-0x08040000 und `App_MainTask` löst den Reset aus (`SCB_SystemResetOtaApply`). Ein 60-s-Timeout bricht die Sitzung ab.
+0x08040000 und `App_MainTask` löst etwa 3 s nach dem letzten 0xCE-Frame den Reset aus (`SCB_SystemResetOtaApply`). Ohne
+geprüftes Image wird die Sitzung nach etwa 3 s ohne 0xCE-Frame abgebrochen (nicht 60 s, wie eine frühere Fassung dieses
+Dokuments angab); Einzelheiten und Empfangsfilter in §4.1.6.
+
+#### 4.1.6 Welche 0xCE-Frames den Micro erreichen (Empfangsfilter, Startbedingungen des Updates)
+
+Frage: Kann ein CAN-Update, das für einen anderen Knoten gedacht ist (BMS-Packs, andere Micros, MPPT), die Update-Routine
+dieses Micro starten? **Antwort: nein für BMS-Packs und für jede Knotenadresse außer Klasse 4 Knoten 0/1 und Klasse 2
+Knoten 1 — diese Frames verwirft der CAN-Controller, bevor die Software sie sieht. NACHGEWIESEN aus dem Code.** Der
+Software-Pfad selbst prüft keine Adresse; alles, was die Filter passiert, wird als Update für diesen Micro behandelt.
+
+**CAN-Controller.** Das vom Treiber benutzte Registerlayout ist NXP FlexCAN: MCR bei +0x00 (FRZ/HALT/SOFTRST/MAXMB,
+IRMQ = Bit 16, SRX_DIS = Bit 17), CTRL1 +0x04, RXMGMASK/RX14MASK/RX15MASK +0x10/+0x14/+0x18, IMASK1 +0x28, IFLAG1 +0x30,
+CTRL2 +0x34, Message-Buffer ab +0x80, individuelle Masken RXIMR ab +0x880. Der NS800RT enthält also einen
+FlexCAN-kompatiblen Controller (passt zu §1).
+
+**Filter-Einrichtung (`CAN_Init` 0x080088c0, identische Neuinitialisierung in `CAN1_IRQHandler`).** `FLEXCAN_Init` läuft
+mit individueller RX-Maskierung (Config-Byte +0x248 = 1 → MCR.IRMQ = 1; Selbstempfang abgeschaltet) und 16
+RX-Message-Buffer-Deskriptoren aus `g_canFlexcanRxMbConfigArray` (0x20120010, 16 × 24 B, Anfangswerte aus dem per
+Scatter-Load entpackten `.data`). `FLEXCAN_SetRxMbConfig` schreibt ID und IDE in jeden MB, setzt ihn auf RX-leer und
+schreibt die Maske nach RXIMR[mb]. Die Mailboxen 0..15 sind nicht für Empfang eingerichtet (sie sind der TX-Ringpuffer;
+`CAN_TransmitFrame` greift nur auf MB 0..15 zu). Kein anderer Code schreibt die RX-Mailboxen oder RXIMR.
+
+| RX-MB | Erweiterte ID | Maske | Durchgelassene Frames |
+|---|---|---|---|
+| 16–23 | 0x00004100 | 0x0000FE00 | ID-Byte1 = 0x40 oder 0x41 (Klasse 4, Knoten 0 oder 1), beliebige Funktion/Quelle/Frame-Index |
+| 24–25 | 0x1801AA01 | 0x1FF0FFFF | BMS-Info-Frames 0x180nAA01 (§4.2) |
+| 26–31 | 0x00002100 | 0x0000FF00 | ID-Byte1 = 0x21 (Klasse 2, Knoten 1) |
+
+CTRL2.EACEN bleibt 0, das IDE-Bit wird also immer verglichen: Frames mit Standard-ID passen nie. Alles andere wird nicht
+gespeichert und löst keinen Interrupt aus.
+
+**Was der Control sendet (A-Control 150 / 150.9 / 151, funktional gleich; derselbe Code im D-Control 151).**
+`ProcessFirmwareUpdateCommand` legt bis zu drei anstehende CAN-Update-Aufträge ab; das Auftragstyp-Byte wird in die
+Zielklasse übernommen: Slot 0 „mppt" = Klasse 2, Slot 1 „bms" = Klasse 3, Slot 2 „venus" = Klasse 4
+(`CAN_Select_Master_Node` akzeptiert nur die Klassen 2..4). `CAN_Update_Init` schaltet auf Control-Seite bei jedem Ziel den
+Wechselrichterausgang ab. Alle Frames baut `Register_WriteCategory0xCE` → `CAN_Build_Arbitration_ID(0xCE, Knoten, Klasse, Frame-Index)`:
+
+`id = Frame-Index << 24 | 0x01 << 16 | Klasse << 12 | Knoten << 8 | 0xCE` (Byte2 = Quelle 0x01 = Control).
+
+| Auftrag | Knoten | IDs auf dem Bus (Start / Daten / Blockende) | Erreicht den A-Micro? |
+|---|---|---|---|
+| „venus" (Klasse 4) | 1 | 0x000141CE / 0x010141CE / 0x020141CE | ja (MB16–23) — vorgesehenes Ziel |
+| „mppt" (Klasse 2) | 1 | 0x000121CE / 0x010121CE / 0x020121CE | ja (MB26–31) — beim Venus A *ist* der Klasse-2-Knoten dieser Micro (§4.1.1) |
+| „bms" (Klasse 3) | 0xF (alle Packs, keine Versionsabweichung) oder n+1 (einzelnes Pack mit abweichender Version) | 0x00013FCE …, 0x00013nCE … | **nein** — Byte1 0x3F/0x3n passt auf keine RX-Maske |
+
+Nutzdaten: Start = u32 Image-Länge + u16 CRC16 (6 B), Daten = 8 B, Blockende = u16 Block-CRC + u16 Blocknummer (der Micro
+programmiert bei Blocknummer × 0x400). Das BMS antwortet mit Byte1 = 0x01 (Klasse 0 Knoten 1, der Control) und Byte2 =
+0x30 | Slot (`CAN_Build_Arbitration_ID` des BMS 1105), 0xCE-Verkehr zwischen Packs hat Byte1 = 0x3n; beides passiert die
+Masken des Micro nicht.
+
+**BMS-Seite (A-BMS 1105).** Eine Filterbank mit ID 0 / Maske 0 (alles annehmen); der Software-Filter ist
+`CAN_RX_Command_Dispatcher`: nur Klasse 3, Knoten = eigener Slot, 0xF oder 0; für 0xCE muss zusätzlich das obere Nibble von
+Byte2 0 sein, bevor `BMS_OTA_Flash_Writer` läuft (jeder Klasse-3-0xCE-Frame setzt `g_otaInProgressFlag`). Update-Frames für
+Klasse 2/4 ignorieren die Packs also ebenfalls.
+
+**Was der Micro vor dem Löschen prüft (`CAN_RxDispatch`, Funktionscode 0xCE).**
+
+| Frame-Index (Byte3 Bit 0–4) | Bedingung | Aktion |
+|---|---|---|
+| beliebig | – | `g_otaStallSeconds` = 0 (hält eine laufende Sitzung am Leben) |
+| 0 (Start) | nur: Sitzung nicht aktiv (`g_otaFlags` Bit 2 = 0) | `Inv_EpwmForceTrip`, `Mppt_EpwmDisable`, `ShellCmd_stop`, `g_cfgParallelMode` = 1 (Wechselrichterstart gesperrt), OTA-Zustand löschen, **232 × 1 KB ab 0x08046000 löschen** (synchron im Dispatcher), Länge + CRC speichern, Quittung `byte1<<16 \| byte2<<8 \| 0xCE` mit Daten 01 00 01 01, `g_otaFlags` \|= 5 |
+| 1 (Daten) | `g_otaFlags` Bit 0 | 8 Byte an den 1-KB-Zwischenpuffer anhängen |
+| 2 (Blockende) | keine (keine Sitzungsprüfung) | CRC16 des Zwischenpuffers = empfangene CRC → 1 KB bei 0x08046000 + Block × 0x400 programmieren (Schreibzugriffe außerhalb 0x08000000–0x0807FFFF lehnt `Flash_ProgramDoubleWords` ab, erreichbar ist also nur der Zwischenspeicher); nach dem letzten Block CRC16 über `Länge` Byte → `OTA_WriteBootDescriptor` (0x08040000), `g_otaFlags` Bit 3 |
+
+Keine Prüfung von Klasse, Knoten, Quelle, Gerätetyp, Firmware-Version, Image-Länge oder Header vor dem Löschen. Die
+einzigen Integritätsprüfungen sind die mit der CRC-Einheit des Chips (0x40082000, Startwert 0xFFFF) berechneten CRC16-Werte
+je 1-KB-Block und über das ganze Image; keine Signatur, keine Verschlüsselung, keine Versions-/Rollback-Prüfung. Der
+Bootloader, der das Image installiert, ist nicht Teil dieses Images; ob er über den Deskriptor hinaus etwas prüft, ist
+**OFFEN**.
+
+`App_MainTask` überwacht eine Sitzung: pro Sekunde ohne 0xCE-Frame wird `g_otaStallSeconds` erhöht; bei 3 folgt entweder
+der Reset in den Bootloader (Image geprüft) oder der Abbruch: `ShellCmd_start` (MPPT wieder an), `g_cfgParallelMode` = 0
+(unabhängig vom Wert vor dem Update auf 0 gesetzt) und OTA-Zustand gelöscht. Die Wechselrichter-PWM startet die normale
+Zustandsmaschine wieder.
+
+**Folgen.**
+
+- Ein BMS-Update (Klasse 3, Broadcast 0xF oder einzelnes Pack) kann die Update-Routine des Micro nicht starten —
+  **NACHGEWIESEN** (Hardware-Masken oben; der BMS-Dispatcher hat die spiegelbildliche Klasse-3-Prüfung).
+- Updates für andere Micros (Klasse 4 Knoten ≥ 2) oder andere Klasse-2-Knoten (Knoten ≠ 1) werden ebenfalls in Hardware
+  verworfen — **NACHGEWIESEN**. Der Update-Code des Control verwendet für die Klassen 2 und 4 immer Knoten 1, solche Frames
+  entstehen also ohnehin nicht.
+- Ein Update-Auftrag vom Typ „mppt" (Klasse 2) wird auf einem Venus A von diesem Micro genauso angenommen und ausgeführt
+  wie ein „venus"-Auftrag: PWM aus, Zwischenspeicher gelöscht, Image programmiert und installiert, wenn beide CRC16
+  stimmen — **NACHGEWIESEN** für die Micro-Seite. Das passt zum Aufbau des A (der Klasse-2-MPPT-Knoten ist dieser Micro);
+  ob die Cloud einem Venus A jemals einen „mppt"-Auftrag schickt und was der Bootloader mit einem Image für ein anderes
+  Gerät macht, ist **OFFEN**.
+- Jedes Gerät am internen CAN-Bus kann mit einem einzigen Start-Frame an Byte1 0x40/0x41/0x21 die Leistungswandlung für
+  mindestens ~3 s stoppen und den Zwischenspeicher löschen (keine Authentifizierung) — **NACHGEWIESEN** aus dem Code;
+  derselbe Befundtyp wie die nicht authentifizierte Shell über CAN (§8).
+
+**Vergleich mit Venus-D-Micro 116 und E3-Micro 119 (nur gelesen).** Beide nutzen das FDCAN des STM32G474 mit den
+erweiterten Filtern 0x4000/0xFF00 und 0x4100/0xFF00 (Byte1 0x40 oder 0x41), dem BMS-Filter (D 0x1801AA01/0x1FF0FFFF, E3
+0x1800AA00/0x1FF0FF00), einem Standard-ID-Filter 0x300/0x300 und dem globalen Filter „nicht passende verwerfen"
+(`FDCAN1_ConfigFiltersAndMailboxes`, `FDCAN1_Init`). Update-Frames der Klassen 2 und 3 erreichen sie also ebenfalls nicht.
+Ihr 0xCE-Start prüft zusätzlich die angekündigte Image-Größe (100 Byte … halber Flash − 16 KB), bevor
+`OTA_SelfUpdate_StateMachine` löscht, und das Image wird mit CRC16/Modbus geprüft — ebenfalls ohne Signatur.
+**A-spezifisch** sind nur der zusätzliche Filter für Klasse 2 Knoten 1 (weil die MPPT-Stufe in diesem Micro sitzt) und das
+bedingungslose Löschen/Abschalten der PWM beim ersten Start-Frame. Randnotiz zu D/E3 (ERSCHLOSSEN aus Filter- und
+Dispatcher-Code, nicht getestet): ihr Standard-ID-Filter lässt 11-Bit-IDs 0x300–0x3FF durch und der Dispatcher nimmt das
+untere Byte als Funktionscode, ein Standard-Frame 0x3CE käme also in den 0xCE-Startpfad; keine Firmware im Bestand sendet
+Standard-IDs auf diesem Bus.
 
 ### 4.2 BMS-Frames und der „PV-Rettungs"-Handshake
 
@@ -381,14 +484,16 @@ Relais verschweißt, 74 Off-Grid-Nulldurchgangs-Einschaltung.
 
 Nur der CAN-Weg 0xCE (§4.1.5) in den Zwischenspeicher 0x08046000 plus Boot-Deskriptor bei 0x08040000; der Bootloader
 (nicht Teil dieses Images) installiert es. Kein YMODEM-/UART-Update und kein BMS-Weiterleitungs-Update in diesem Image (anders als
-beim D-Micro). Integrität: nur CRC16.
+beim D-Micro). Integrität: nur CRC16. Angenommene Absender und Startbedingungen: §4.1.6.
 
 ## 8. Sicherheitshinweise
 
 - Shell-Benutzer „letter V1211" ohne Passwort; Shell über CAN (Funktion 0xC2/0xC3) gibt jedem am internen CAN-Bus (und über die
   Debug-Weiterleitung des Control) vollen Konsolenzugriff: `reset_memory`, `set_mode`, `power_cfg`-PWM-Befehle im offenen
   Regelkreis, `io_set` (Relais), `llc_feq` …
-- OTA über CAN akzeptiert jedes Image mit passender CRC16 — keine Signatur.
+- OTA über CAN akzeptiert jedes Image mit passender CRC16 — keine Signatur. Der erste Start-Frame (ohne Adress-, Längen-
+  oder Geräteprüfung) schaltet die PWM ab und löscht den Zwischenspeicher; Update-Frames der Klasse 3 (BMS) werden in
+  Hardware ausgefiltert (§4.1.6).
 - Die CAN-Testbefehle 0x50–0x58 (Modus 12) und die Alterungsmodi betreiben den Leistungsteil außerhalb der normalen Überwachung.
 
 ## 9. Unterschiede zur Venus-D-Wechselrichter-Firmware (v116)
@@ -426,3 +531,4 @@ beim D-Micro). Integrität: nur CRC16.
 3. Variante des MPPT-Tracking-Algorithmus und Bedeutung der fünf Energiezähler-Ebenen (Hypothese Datumshierarchie).
 4. Grundcode 5 von err2 Bit 7 und die genaue Relais-/Spannungsbedingung hinter err2 Bit 13.
 5. PE-Spannungsfehler (MPPT-Bit 10/11) — Hypothese Isolations-/PE-Überwachung.
+6. Prüfungen des A-Micro-Bootloaders, bevor er ein Image aus dem Zwischenspeicher installiert (Bootloader nicht im Image, §4.1.6).
