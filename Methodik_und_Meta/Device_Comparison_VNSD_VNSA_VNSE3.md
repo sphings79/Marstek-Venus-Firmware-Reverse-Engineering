@@ -413,9 +413,10 @@ Per BMS version (multi-pack models only; image names in the firmware archive):
 
 | Model | BMS FW | `PackSelect_DischargeStepThreshold` | Hand-off to the fullest pack at (cutoff 12 %) | `ChargeStepTarget`, modes 1/2/3 | Evidence |
 |---|---|---|---|---|---|
+| D | 116 (no image in the archive) | unknown | packs stopped at **10.9 %** (observed); matches the 117.7 formula | unknown | measured by a third party on a 4-pack unit, app overall SOC 12 %; no code available |
 | D | 117.7 (`1177`) | fixed step table `max(10, ⌊(soc% − 10) / 10⌋ · 10)`, **ignores** the configured discharge limit | about **10.9 %**, independent of the cutoff | present | decompilation `0x08009354` |
 | D | 118 | `L = 100 − DoD`, threshold `max(soc% − 10, L)`, at `soc% ≤ L` → `L − 1` | **cutoff + 0.9 %** (12.9 % at cutoff 12 %) | present | decompilation `0x080093bc`; measured on a Venus D (BMS 118) on 10/11 Oct 2026 |
-| A | 109 | function body **byte-identical** to A 1105 (`0x08009384`) | **cutoff + 0.9 %** | byte-identical to 1105 (`ModeBySoc`, `Mode1/2/3`, `ChargeStepTarget`, `Discharge_StepRotate`) | byte comparison, not decompiled, not measured |
+| A | 109 | function body **byte-identical** to A 1105 (`0x08009384`) | **cutoff + 0.9 %** | byte-identical to 1105 (`ModeBySoc`, `Mode1/2/3`, `ChargeStepTarget`, `Discharge_StepRotate`) | byte comparison, not decompiled; measured by a third party on a Venus A with 2 packs (cutoff 12 %): a pack that was already at 12.1 % was handed over below 12.0 % (threshold `L − 1`), the final stop came at total SOC 12 % with the other pack at 14.1 % |
 | A | 1105 | same formula as D 118, only addresses differ | **cutoff + 0.9 %** | present | decompilation `0x0800942c`, not measured |
 | A | 110 | identical to A 1105 (`0x08009384`); pack-selection code unchanged, only the current limit differs (40 A) | **cutoff + 0.9 %** | identical / only call targets differ | byte comparison and decompilation, not measured |
 | A | 115 | threshold function byte-identical to 1105 (`0x08009EB4`); **stale threshold fixed**, new spread switch (see below) | **cutoff + 0.9 %** | `ModeBySoc`, `Mode1/2/3` identical; `ChargeStepTarget`, `Discharge_StepRotate`, `ModeDispatch` changed | decompilation, not measured |

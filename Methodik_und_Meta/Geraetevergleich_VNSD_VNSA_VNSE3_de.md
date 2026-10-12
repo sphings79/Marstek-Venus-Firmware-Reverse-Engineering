@@ -415,9 +415,10 @@ Je BMS-Version (nur Mehrpack-Modelle; Image-Namen im Firmware-Archiv):
 
 | Modell | BMS-FW | `PackSelect_DischargeStepThreshold` | Wechsel auf das vollste Pack bei (Cutoff 12 %) | `ChargeStepTarget`, Modi 1/2/3 | Beleg |
 |---|---|---|---|---|---|
+| D | 116 (kein Image im Archiv) | unbekannt | Packs stoppten bei **10,9 %** (beobachtet); passt zur 117.7-Formel | unbekannt | von Dritten an einem 4-Pack-Gerät gemessen, App-Gesamt-SOC 12 %; kein Code vorhanden |
 | D | 117.7 (`1177`) | feste Stufentabelle `max(10, ⌊(soc% − 10) / 10⌋ · 10)`, **ignoriert** die eingestellte Entladegrenze | etwa **10,9 %**, unabhängig vom Cutoff | vorhanden | Dekompilat `0x08009354` |
 | D | 118 | `L = 100 − DoD`, Schwelle `max(soc% − 10, L)`, bei `soc% ≤ L` → `L − 1` | **Cutoff + 0,9 %** (12,9 % bei Cutoff 12 %) | vorhanden | Dekompilat `0x080093bc`; am 10./11.10.2026 an einem Venus D (BMS 118) gemessen |
-| A | 109 | Funktionskörper **Byte für Byte identisch** zu A 1105 (`0x08009384`) | **Cutoff + 0,9 %** | identisch zu 1105 (`ModeBySoc`, `Mode1/2/3`, `ChargeStepTarget`, `Discharge_StepRotate`) | Byte-Vergleich, nicht dekompiliert, nicht gemessen |
+| A | 109 | Funktionskörper **Byte für Byte identisch** zu A 1105 (`0x08009384`) | **Cutoff + 0,9 %** | identisch zu 1105 (`ModeBySoc`, `Mode1/2/3`, `ChargeStepTarget`, `Discharge_StepRotate`) | Byte-Vergleich, nicht dekompiliert; von Dritten an einem Venus A mit 2 Packs gemessen (Cutoff 12 %): Ein Pack, das schon bei 12,1 % stand, wurde unter 12,0 % abgegeben (Schwelle `L − 1`), der endgültige Stopp kam bei Gesamt-SOC 12 %, das andere Pack stand bei 14,1 % |
 | A | 1105 | gleiche Formel wie D 118, nur Adressen anders | **Cutoff + 0,9 %** | vorhanden | Dekompilat `0x0800942c`, nicht gemessen |
 | A | 110 | identisch zu A 1105 (`0x08009384`); Pack-Auswahl unverändert, nur das Stromlimit weicht ab (40 A) | **Cutoff + 0,9 %** | identisch / nur Call-Ziele anders | Byte-Vergleich und Dekompilat, nicht gemessen |
 | A | 115 | Schwellenfunktion Byte-identisch zu 1105 (`0x08009EB4`); **Stale Threshold behoben**, neuer Abstandswechsel (siehe unten) | **Cutoff + 0,9 %** | `ModeBySoc`, `Mode1/2/3` identisch; `ChargeStepTarget`, `Discharge_StepRotate`, `ModeDispatch` geändert | Dekompilat, nicht gemessen |
