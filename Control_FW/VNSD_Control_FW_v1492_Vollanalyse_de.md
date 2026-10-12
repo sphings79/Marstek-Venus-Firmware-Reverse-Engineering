@@ -311,6 +311,7 @@ neu-in-v151 war demnach falsch (nicht mehr offen).
     hier @ 0x08036e34).
   - Der `bx lr`-Stub heißt jetzt `MQTT_Transport_NullCallback` (hier @ 0x0800fffe, versionsspezifische
     Adresse).
+- Nacharbeit 2026-10-12 (wie bei D 151 / A 1509): `Inverter_RegDirty_Mark_DischgVolt` → `Inverter_RegDirty_Mark_GridPermit` (übergibt 1, solange das Micro-Telemetriewort `g_invState+0x16` 0 ist) und `Inverter_RegDirty_Mark_BatteryParams` → `Inverter_RegDirty_Mark_PvVoltage` (übergibt 1, solange alle vier PV-String-Spannungen unter 0x8D = 14,1 V liegen); das Code-Muster wurde in diesem Image geprüft. Das „Inverter-Dirty-Bitmap" ist das Frontpanel-LED-Bitmap eines TM1650-artigen Treibers (Bit-Bang-I2C auf die Digit-Register 0x68/0x6A/0x6C/0x6E); Plate-Kommentare der LED-Wrapper und Globals aktualisiert. Gates erneut gelaufen: alle bestanden; Dekompilat- und Listing-Export aktualisiert.
 
 ## 11. Chinesische Strings
 

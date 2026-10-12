@@ -301,6 +301,8 @@ Bekannte Werte (diese Tabelle bei jeder neuen Version erweitern):
 | D-BMS 117.7 | `pack_id < 10` | 1..9 | 16 |
 | D-BMS 118 | `pack_id < 10` | 1..9 | 16 |
 | A-BMS 1105 | `pack_id < 7` | 1..6 | 13 |
+| A-BMS 110 | `pack_id < 7` | 1..6 | 13 |
+| A-BMS 115 | `pack_id < 7` | 1..6 | 13 |
 | E3-BMS 115 | noch zu prüfen | – | – |
 
 Zählhinweis: `pack_id` zählt ab 1 (die Bedingung lautet `pack_id != 0 && pack_id < N`, die Datensätze werden mit `pack_id - 1` indiziert), `< 7` bedeutet also Pack 1..6 (sechs Packs) und `< 10` Pack 1..9 (neun Packs); `pack_id` 1 ist das eigene Pack des Master-BMS.

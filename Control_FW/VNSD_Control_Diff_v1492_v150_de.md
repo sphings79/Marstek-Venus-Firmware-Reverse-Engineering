@@ -225,9 +225,9 @@ Notify) — gibt dem Modem mehr Anlaufzeit.
   `Quectel_GetDeviceIP`, `Quectel_UDP_Socket_Open`, `SMR_TIC_SelfUse_PowerController` (9 Konstanten, alle
   um exakt +0xE verschoben)
 - **Compiler-/Decompiler-Rauschen**: `MQTT_Publish_Meter_Data` (nur Typ-Anmerkung `pointer` →
-  `undefined *`), `llhttp_errno_name` (Ghidra erkennt die Sprungtabelle des `default`-Falls in v149.2
-  nicht und dekompiliert Tabellen-Padding als Fehlcode — die Fehlernamen-Tabelle selbst ist
-  unverändert), `pow`/`fp64_abs`/`__scatterload`/`sscanf_Format_Parser`/`vPortStartFirstTask`/
+  `undefined *`), `llhttp_errno_name` (im früheren v149.2-Programm war die HPE_*-String-Tabelle hinter der
+  Funktion als Code disassembliert, was der Decompiler als nicht aufgelöste Sprungtabelle im `default`-Fall
+  zeigte; am 2026-10-12 auf den Stand von v150 korrigiert — die Fehlernamen-Tabelle selbst ist unverändert), `pow`/`fp64_abs`/`__scatterload`/`sscanf_Format_Parser`/`vPortStartFirstTask`/
   `SPI_WriteByte`/`ShellCmd_reset` (Literal-Pool-Verschiebungen, Register-Zuteilung)
 - `HTTP_ParserOnBody`/`HTTP_ParserOnMessageComplete`/`HTTP_ParseData` (0804d8b4/0804d924/0802b130): die
   Umbenennung `g_httpRespBodyBuf` → `g_httpBodyBuf` betrifft dieselbe Adresse (0x6001fa68, nur

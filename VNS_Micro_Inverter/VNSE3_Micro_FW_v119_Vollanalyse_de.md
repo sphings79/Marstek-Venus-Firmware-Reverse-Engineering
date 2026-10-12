@@ -61,7 +61,7 @@
   Control schreibt ihre vier Bytes `g_invRegPendingBits` per Bit-Bang-I2C als [Register, Wert] mit der Registertabelle
   {0x68, 0x6A, 0x6C, 0x6E} (E3 Control 0x08059AF5) — die Stellen-Register eines TM1650-artigen LED-/7-Segment-Treibers. Das E3-Layout
   (0x1C Bits, 7 pro Byte = 28 LED-Segmente; D 0x18 Bits, 6 pro Byte = 24) und die 2-Bit-Felder beschreiben also LED-Segmente der
-  Frontblende; die zu D `Inverter_RegDirty_Mark_DischgVolt` / `_BatteryParams` byteidentischen Wrapper setzen nur LED-Segmente. Weder
+  Frontblende; die zu D `Inverter_RegDirty_Mark_GridPermit` / `_PvVoltage` (vormals `_DischgVolt` / `_BatteryParams`) byteidentischen Wrapper setzen nur LED-Segmente. Weder
   ein CAN-Frame noch ein Micro-Register ist beteiligt.
 
 ## 1. Binärer Fingerabdruck

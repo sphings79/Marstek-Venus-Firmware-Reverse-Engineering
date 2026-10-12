@@ -60,7 +60,7 @@
   Control writes its four bytes `g_invRegPendingBits` over bit-banged I2C as [register, value] with the register table
   {0x68, 0x6A, 0x6C, 0x6E} (E3 Control 0x08059AF5) — the digit registers of a TM1650-type LED/7-segment driver. The E3 layout
   (0x1C bits, 7 per byte = 28 LED segments; D 0x18 bits, 6 per byte = 24) and the 2-bit fields therefore describe front-panel LED
-  segments; the wrappers byte-identical to D's `Inverter_RegDirty_Mark_DischgVolt` / `_BatteryParams` just set LED segments. No CAN
+  segments; the wrappers byte-identical to D's `Inverter_RegDirty_Mark_GridPermit` / `_PvVoltage` (formerly `_DischgVolt` / `_BatteryParams`) just set LED segments. No CAN
   frame and no micro register is involved.
 
 ## 1. Binary fingerprint

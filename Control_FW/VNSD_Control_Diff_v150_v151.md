@@ -124,9 +124,18 @@ in change table anymore).
 
 - Exact meaning of `df=%d` in `MQTT_StatusReport_BuildAndPublish`: plausibly a DOD/discharge-fault status
   related to `CT_GridPower_Controller`/`Battery_EPS_Reserve_SOC_Hysteresis` change, but bit/value meaning not verified at code.
-- `Write_Handler`: Internal jump tables could not be reconstructed in either version by Ghidra ("too many branches") and function grew by 4 bytes; comprehensive should-is comparison was not possible within available scope. Core changes named (registers 0xB799, 0xAFE6 slot,
-  `CAN_Write_Category0x18`) are verified at code, further small deviations in uninvolved branches
-  cannot be ruled out (medium rather than high confidence).
+- `Write_Handler` (corrected 2026-10-12): an earlier version of this document said that Ghidra could not
+  reconstruct the internal jump tables in either version. That applied to the programs used at the time. In the
+  current programs (D Control 150 at base 0x08004800 and D Control 151) all seven TBB/TBH dispatches of
+  `Write_Handler` are resolved, three of them with manual jump-table overrides whose entries were read from the
+  raw table bytes (all targets inside the function): v150 TBB 8 / TBB 6 / TBH 15 entries, v151 TBB 8 / TBB 6 /
+  TBH 16 entries. Both decompilations contain no unrecovered jump table (77 vs 78 case labels). Case labels
+  differ only in the high-register switch (v150 explicit `case 0xafdf` = `Inverter_Set_Reg_0xFE`, v151
+  `case 0xafe6` plus the additional TBH entry); the callee multiset is identical except the new
+  `CAN_Write_Category0x18` call. The core changes named above (registers 0xB799, 0xAFE6 slot,
+  `CAN_Write_Category0x18`) are verified at code; a complete branch-by-branch equivalence proof of the
+  remaining branches was still not done, so small deviations in uninvolved branches cannot be ruled out
+  (medium rather than high confidence).
 - Additional initializer `DAT_2001A8AA = 0xA892` in `Config_LoadOrInit_DeviceSettings` (v151, 2 bytes after
   "VNSD-0" string in device ID setup) – purpose not apparent from this function alone.
 - Whether new MQTT command `cd=0x42` ("Get INV DEBUG info", maintenance mode + `MQTT_Publish_WorkMode_Config` +

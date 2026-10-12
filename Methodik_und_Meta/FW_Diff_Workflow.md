@@ -301,6 +301,8 @@ Known values (extend this table for every new version):
 | D BMS 117.7 | `pack_id < 10` | 1..9 | 16 |
 | D BMS 118 | `pack_id < 10` | 1..9 | 16 |
 | A BMS 1105 | `pack_id < 7` | 1..6 | 13 |
+| A BMS 110 | `pack_id < 7` | 1..6 | 13 |
+| A BMS 115 | `pack_id < 7` | 1..6 | 13 |
 | E3 BMS 115 | to be checked | – | – |
 
 Counting note: `pack_id` is one-based (the condition is `pack_id != 0 && pack_id < N`, records are indexed with `pack_id - 1`), so `< 7` means packs 1..6 (six packs) and `< 10` means packs 1..9 (nine packs); `pack_id` 1 is the master's own pack.

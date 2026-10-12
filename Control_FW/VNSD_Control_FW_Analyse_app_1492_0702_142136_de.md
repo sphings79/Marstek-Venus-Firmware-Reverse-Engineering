@@ -3524,14 +3524,14 @@ Beschreibungskorrekturen/-ergänzungen, 1 Faktenkorrektur):**
    diverse Inverter-Register dienen (WorkMode, ChgVolt, DischgVolt, PowerSetpoint, GridPower,
    BatteryParams) und **keiner** ihrer insgesamt 9 Aufrufer einen Zeitplan-/Uhrzeit-Bezug hat.
    Vorschläge: `Inverter_RegDirty_Mark_BatteryParams` bzw. `Inverter_RegDirty_Bitmap_SetClear`.
-   (2026-10-02: die "Inverter-Register" sind Frontpanel-LED-Segmente eines TM1650-artigen Treibers; in v151 heißt der Wrapper `Inverter_RegDirty_Mark_PvVoltage`.)
+   (2026-10-02: die "Inverter-Register" sind Frontpanel-LED-Segmente eines TM1650-artigen Treibers; in v151 heißt der Wrapper `Inverter_RegDirty_Mark_PvVoltage`; am 2026-10-12 in 147, 149, 149.2 und 150 genauso umbenannt.)
    Betrifft indirekt auch die Namensfamilie `Inverter_BatteryParams_Timeslot2_SetClear`
    (0x08006530, ruft `Timeslot_Bitmap_SetClear` auf) — dort ist "Timeslot2" im Kontext von
    Batterie-Parametern ebenfalls fachlich ungenau, aber ohne eigenen Rename-Vorschlag geprüft.
 4. `0x08032348 Register_PackDescriptor` — Faktenkorrektur: tatsächlich **36 Aufrufer** (nicht 35 wie
    in der bisherigen Beschreibung), verifiziert per vollständiger Caller-Liste.
 5. Mehrere kleinere Beschreibungspräzisierungen: `Inverter_RegDirty_MarkAll`/`_Mark_ChgVolt`/
-   `_Mark_DischgVolt` setzen oder löschen abhängig vom Parameter (nicht nur "setzen");
+   `_Mark_DischgVolt` (jetzt `_Mark_GridPermit`) setzen oder löschen abhängig vom Parameter (nicht nur "setzen");
    `Inverter_Power_Value_Scale` wendet zusätzlich `Inverter_PowerSetpoint_DeadbandClamp` an (fehlte
    in der Beschreibung); `Inverter_Apply_BatteryParams` ruft am Ende zusätzlich
    `Grid_Power_Dynamic_Adjust` auf und enthält ein Init-Gate + Timeslot2-Bitmap-Logik (fehlte in der

@@ -1575,9 +1575,9 @@ Stand: 06.07.2026
 | `0x08001640` | `HAL_Get_DMA_Channel_Struct` | 42B | DMA-Kanal-Struct holen |
 | `0x0800167c` | `GPIO_Init_Generic` | 136B | Generische GPIO-Init |
 | `0x08001720` | `GPIO_Init_All_Pins` | 312B | Alle GPIO-Pins initialisieren |
-| `0x08001870` | `GPIO_Init_Output_PP_50MHz` | 148B | Push-Pull Output 50MHz |
+| `0x08001870` | `GPIO_Init_Input_Floating` | 148B | Floating Input konfigurieren |
 | `0x08001920` | `HAL_GPIO_ReadInputBit_Wrapper` | 16B | GPIO Input lesen (Wrapper) |
-| `0x08001930` | `GPIO_Init_Input_Floating` | 148B | Floating Input konfigurieren |
+| `0x08001930` | `GPIO_Init_Output_PP_50MHz` | 148B | Push-Pull Output 50MHz |
 | `0x080019e0` | `HAL_GPIO_ReadOutputBit_Wrapper` | 16B | GPIO Output lesen (Wrapper) |
 | `0x080019f0` | `HAL_GPIO_Write_Pin` | 30B | GPIO Pin setzen/löschen |
 | `0x08001a18` | `GPIO_DeInit_And_CAN_NVIC_Init` | 300B | GPIO DeInit + CAN NVIC |

@@ -193,8 +193,9 @@ right after sending AT command added (before notify wait) — gives modem more r
   `Quectel_GetDeviceIP`, `Quectel_UDP_Socket_Open`, `SMR_TIC_SelfUse_PowerController` (9 constants, all
   shifted by exactly +0xE)
 - **Compiler/decompiler noise**: `MQTT_Publish_Meter_Data` (only type annotation `pointer` →
-  `undefined *`), `llhttp_errno_name` (Ghidra doesn't recognize jump table of `default` case in v149.2
-  and decompiles table padding as error code — error name table itself unchanged), `pow`/`fp64_abs`/`__scatterload`/`sscanf_Format_Parser`/`vPortStartFirstTask`/
+  `undefined *`), `llhttp_errno_name` (in the earlier v149.2 program the HPE_* string table behind the
+  function was disassembled as code, which the decompiler showed as an unrecovered jump table in the `default` case;
+  corrected 2026-10-12 to the v150 state — error name table itself unchanged), `pow`/`fp64_abs`/`__scatterload`/`sscanf_Format_Parser`/`vPortStartFirstTask`/
   `SPI_WriteByte`/`ShellCmd_reset` (literal pool shifts, register allocation)
 - `HTTP_ParserOnBody`/`HTTP_ParserOnMessageComplete`/`HTTP_ParseData` (0804d8b4/0804d924/0802b130): rename
   `g_httpRespBodyBuf` → `g_httpBodyBuf` affects same address (0x6001fa68, naming loss only this round), copy limit stays exact 0x4B0 (1200 bytes); remaining changed constants (0xd3/0xdc/0xe8) also only `__LINE__` arguments of associated

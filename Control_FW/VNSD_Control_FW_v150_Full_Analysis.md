@@ -375,3 +375,4 @@ versions including v150; decompilation export has 0 errors.
 Corrections documented for v147 (`VNSD_Control_FW_Analysis_147_202601281721320b2053125.md` §10)
 concern artifacts already cleaned up pre-export for v150 (task trampolines,
 cipher range misnaming, `CH395_ConfigTcpKeepalive_Defaults`, `MQTT_Transport_NullCallback`).
+- Follow-up 2026-10-12 (same as D 151 / A 1509): `Inverter_RegDirty_Mark_DischgVolt` → `Inverter_RegDirty_Mark_GridPermit` (passed 1 while the micro telemetry word `g_invState+0x16` is 0) and `Inverter_RegDirty_Mark_BatteryParams` → `Inverter_RegDirty_Mark_PvVoltage` (passed 1 while all four PV string voltages are below 0x8D = 14.1 V); the code pattern was verified in this image. The "inverter dirty bitmap" is the front-panel LED bitmap of a TM1650-type driver (bit-banged I2C to the digit registers 0x68/0x6A/0x6C/0x6E); plate comments of the LED wrappers and globals updated. Gates re-run: all pass; decompilation and listing export refreshed.

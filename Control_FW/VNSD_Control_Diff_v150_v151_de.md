@@ -126,11 +126,19 @@ mehr in der Änderungstabelle).
 - Genaue Bedeutung von `df=%d` in `MQTT_StatusReport_BuildAndPublish`: plausibel ein DOD-/Discharge-Fault-Status
   im Zusammenhang mit der `CT_GridPower_Controller`/`Battery_EPS_Reserve_SOC_Hysteresis`-Änderung, aber Bit-/
   Wertebedeutung nicht am Code verifiziert.
-- `Write_Handler`: Die internen Sprungtabellen konnten in beiden Versionen von Ghidra nicht rekonstruiert
-  werden („too many branches“) und die Funktion ist um 4 Byte gewachsen; ein lückenloser Soll-Ist-Vergleich war
-  im verfügbaren Rahmen nicht möglich. Die genannten Kernänderungen (Register 0xB799, 0xAFE6-Slot,
-  `CAN_Write_Category0x18`) sind am Code verifiziert, weitere kleine Abweichungen in unbeteiligten Zweigen
-  können nicht ausgeschlossen werden (mittlere statt hohe Konfidenz).
+- `Write_Handler` (korrigiert am 2026-10-12): eine frühere Fassung dieses Dokuments sagte, Ghidra habe die
+  internen Sprungtabellen in beiden Versionen nicht rekonstruieren können. Das galt für die damals benutzten
+  Programme. In den aktuellen Programmen (D-Control 150 mit Basis 0x08004800 und D-Control 151) sind alle sieben
+  TBB/TBH-Verteiler von `Write_Handler` aufgelöst, drei davon mit manuellen Sprungtabellen-Overrides, deren
+  Einträge aus den Rohbytes der Tabellen gelesen wurden (alle Ziele innerhalb der Funktion): v150 TBB 8 / TBB 6 /
+  TBH 15 Einträge, v151 TBB 8 / TBB 6 / TBH 16 Einträge. Beide Dekompilate enthalten keine unaufgelöste
+  Sprungtabelle (77 gegenüber 78 Case-Labels). Die Case-Labels unterscheiden sich nur im Switch des hohen
+  Registerbereichs (v150 expliziter `case 0xafdf` = `Inverter_Set_Reg_0xFE`, v151 `case 0xafe6` plus der
+  zusätzliche TBH-Eintrag); die Menge der aufgerufenen Funktionen samt Aufrufzahl ist bis auf den neuen Aufruf
+  `CAN_Write_Category0x18` identisch. Die genannten Kernänderungen (Register 0xB799, 0xAFE6-Slot,
+  `CAN_Write_Category0x18`) sind am Code verifiziert; ein vollständiger Zweig-für-Zweig-Äquivalenznachweis der
+  übrigen Zweige wurde weiterhin nicht geführt, kleine Abweichungen in unbeteiligten Zweigen sind daher nicht
+  ausgeschlossen (mittlere statt hohe Konfidenz).
 - Zusätzlicher Initialisierer `DAT_2001A8AA = 0xA892` in `Config_LoadOrInit_DeviceSettings` (v151, 2 Byte nach
   dem „VNSD-0“-String im Geräte-ID-Setup) – Zweck aus dieser Funktion allein nicht erkennbar.
 - Ob das neue MQTT-Kommando `cd=0x42` („Get INV DEBUG info“, Wartungsmodus + `MQTT_Publish_WorkMode_Config` +

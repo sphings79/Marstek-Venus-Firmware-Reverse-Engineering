@@ -311,6 +311,7 @@ new-in-v151 was thus incorrect (no longer open).
     here @ 0x08036e34).
   - The `bx lr` stub now named `MQTT_Transport_NullCallback` (here @ 0x0800fffe, version-specific
     address).
+- Follow-up 2026-10-12 (same as D 151 / A 1509): `Inverter_RegDirty_Mark_DischgVolt` → `Inverter_RegDirty_Mark_GridPermit` (passed 1 while the micro telemetry word `g_invState+0x16` is 0) and `Inverter_RegDirty_Mark_BatteryParams` → `Inverter_RegDirty_Mark_PvVoltage` (passed 1 while all four PV string voltages are below 0x8D = 14.1 V); the code pattern was verified in this image. The "inverter dirty bitmap" is the front-panel LED bitmap of a TM1650-type driver (bit-banged I2C to the digit registers 0x68/0x6A/0x6C/0x6E); plate comments of the LED wrappers and globals updated. Gates re-run: all pass; decompilation and listing export refreshed.
 
 ## 11. Chinese Strings
 
