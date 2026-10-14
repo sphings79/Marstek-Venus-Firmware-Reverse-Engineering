@@ -309,7 +309,7 @@ Counting note: `pack_id` is one-based (the condition is `pack_id != 0 && pack_id
 
 The Control keeps 7 per-pack records on D and A (Modbus 34000–34699), so on the A a 7th pack reads 0 over Modbus even though its registers exist.
 
-7. **Diff table**: per-version diff table (own file, EN + DE), one row per change, old → new value and where in the code (function + address).
+7. **Diff table**: per-version diff table (own file, EN + DE), one row per change, old → new value and where in the code (function + address). For the binary-fingerprint table in the top-level README, `marstek_fingerprint.py` (read-only Ghidra script; run it per program via `run-script`) prints the mapped flash range, initial SP / reset handler, function and named counts and the defined-string count.
 
 8. **Re-check of non-functional registers**: every register classified FUNCTIONLESS, NO_OP, UNKNOWN (open) or CONDITIONAL, and every DEV register that stays DEV, must be re-verified for each new version, because the reason may disappear (a receiver gains a handler, a frame gets a sender, a constant becomes a real value). The list per device is generated from the register CSV (`Scripts/list_recheck_registers.py D|A|E3`); the diff report states per register "still dead" / "now functional" / "changed" (recipes below). Registers that were working must of course be re-checked as well through the normal descriptor/handler diff (point 1).
 

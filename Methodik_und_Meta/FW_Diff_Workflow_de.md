@@ -309,7 +309,7 @@ Zählhinweis: `pack_id` zählt ab 1 (die Bedingung lautet `pack_id != 0 && pack_
 
 Das Control hält bei D und A je 7 Pack-Datensätze (Modbus 34000–34699); bei der A liest ein 7. Pack deshalb 0 per Modbus, obwohl seine Register existieren.
 
-7. **Diff-Tabelle**: Diff-Tabelle je Version (eigene Datei, EN + DE), eine Zeile je Änderung, alter → neuer Wert und Fundstelle (Funktion + Adresse).
+7. **Diff-Tabelle**: Diff-Tabelle je Version (eigene Datei, EN + DE), eine Zeile je Änderung, alter → neuer Wert und Fundstelle (Funktion + Adresse). Für die Binary-Fingerprint-Tabelle in der Haupt-README gibt `marstek_fingerprint.py` (rein lesendes Ghidra-Skript; je Programm per `run-script` aufrufen) den gemappten Flash-Bereich, Initial SP / Reset Handler, Funktions- und Benannt-Zahl sowie die Zahl definierter Strings aus.
 
 8. **Erneute Prüfung nicht funktionaler Register**: Jedes Register mit Status FUNCTIONLESS, NO_OP, UNKNOWN (offen) oder CONDITIONAL sowie jedes DEV-Register, das DEV bleibt, wird bei jeder neuen Version erneut geprüft, weil der Grund wegfallen kann (ein Empfänger bekommt einen Handler, ein Frame bekommt einen Sender, eine Konstante wird zum echten Wert). Die Liste je Gerät entsteht aus der Register-CSV (`Scripts/list_recheck_registers.py D|A|E3`); der Diff-Bericht nennt je Register „weiterhin funktionslos“ / „jetzt funktional“ / „geändert“ (Rezepte unten). Funktionierende Register werden natürlich weiter über den normalen Deskriptor-/Handler-Vergleich geprüft (Punkt 1).
 
