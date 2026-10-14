@@ -17,29 +17,25 @@ The binary-fingerprint table below covers the **Venus D** images only (status as
 
 ## Binary fingerprint (Venus D firmware images)
 
-Verified live from Ghidra (status 2026-07-15). The "functions named" share is purely the
-Ghidra symbol status. BMS 118 was analyzed completely in terms of content (diff, struct/register layouts)
-and the findings were written back as Ghidra symbol names on 2026-07-15 (526 via
-diff markup transfer from 117.7, 24 new ones named individually) — hence 100 %. Control 147 was completely
-re-mapped on the same day: 1530 functions via diff markup transfer from 149.2, 340 only-in-147 functions
-named individually via subagent analysis (of these, 23 were marked as Ghidra function-boundary artifacts instead of
-being given invented semantics) — details in `Control_FW/VNSD_Control_FW_Analysis_147_202601281721320b2053125.md`.
+Read live from Ghidra (status 2026-10-14). All nine programs are imported at their real load base and are fully named
+(every function has a non-default name, "named" is the Ghidra symbol status only). The flash range is the mapped
+extent of the image (base + file size − 1); the string count is the Ghidra count of defined strings.
 
 | Firmware | Version | File | Size | Flash range | Initial SP | Reset handler | Functions (named/total) | Strings |
 |---|---|---|---|---|---|---|---|---|
-| Control | **150 (current)** | `VNSD-0_app_0150_0805_115146.bin` | 389,120 B (380 KB) | `0x08000000–0x0805EFFF` | `0x2001F7E8` | `0x08004A71` | 1627 / 1884 (86.4 %) ¹ | 1804 ¹ |
-| Control | 149.2 | `Control_149.2_VNSD-0_app_1492_0702_142136.bin` | 385,024 B (376 KB) | `0x08000000–0x0805DFFF` | `0x2001F7D8` | `0x08004A71` | 1618 / 1622 (99.8 %) | 1743 |
-| Control | 147 | `Control_147_...0b2053125.bin` | 372,736 B (364 KB) | `0x08000000–0x0805AFFF` | `0x2001F3E0` | `0x08004A71` | 1870 / 1870 (100 %) | 1302 |
-| Micro/VNS | **116 (current)** | `Micro_VNS_116_vd_inv_app_0116_0702_ota_163439.bin` | 115,712 B (113 KB) | `0x08000000–0x0801C3FF` | `0x20009A70` | `0x080042AD` | 392 / 445 (88.1 %) | 251 |
-| Micro/VNS | 115 | `Micro_VNS_115_...0c0e30687.bin` | 115,712 B (113 KB) | `0x08000000–0x0801C3FF` | `0x20009A70` | `0x080042B1` | 13 / 190 (6.8 %, version diff against 116 only) | 102 |
-| BMS | **118 (current)** | `BMS_118_20260119100535e43806957.bin` | 106,496 B (104 KB) | `0x08000000–0x08019FFF` | `0x2000CBA0` | `0x08002A6D` | 578 / 649 (89.1 %) ¹ | 263 ¹ |
-| BMS | 117.7 | `BMS_117.7_20251010135647565eb2036.bin` | 106,496 B (104 KB) | `0x08000000–0x08019FFF` | `0x2000CB90` | `0x08002A6D` | 552 / 552 (100 %) | 260 |
+| Control | **151 (current)** | `VNSD-0_ems_app_0151_0929_094333.bin` | 393,216 B (384 KB) | `0x08004800–0x080647FF` | `0x20022010` | `0x08004A71` | 1956 / 1956 (100 %) | 4237 |
+| Control | 150 | `VNSD-0_app_0150_0805_115146.bin` | 389,120 B (380 KB) | `0x08004800–0x080637FF` | `0x2001F7E8` | `0x08004A71` | 1954 / 1954 (100 %) | 4101 |
+| Control | 149.2 | `VNSD-0_app_1492_0702_142136.bin` | 385,024 B (376 KB) | `0x08004800–0x080627FF` | `0x2001F7D8` | `0x08004A71` | 1936 / 1936 (100 %) | 4097 |
+| Control | 149 | `VNSD-0_app_0149_0521_094621.bin` | 385,024 B (376 KB) | `0x08004800–0x080627FF` | `0x2001F778` | `0x08004A71` | 1932 / 1932 (100 %) | 4076 |
+| Control | 147 | `VNSD-0_202601281721320b2053125.bin` | 372,736 B (364 KB) | `0x08004800–0x0805F7FF` | `0x2001F3E0` | `0x08004A71` | 1908 / 1908 (100 %) | 4000 |
+| Micro/VNS | **116 (current)** | `VNSD-0_vd_inv_app_0116_0702_ota_163439.bin` | 115,712 B (113 KB) | `0x08004000–0x080203FF` | `0x20009A70` | `0x080042AD` | 693 / 693 (100 %) | 1047 |
+| Micro/VNS | 115 | `VNSD-0_202601230921310c0e30687.bin` | 115,712 B (113 KB) | `0x08004000–0x080203FF` | `0x20009A70` | `0x080042B1` | 696 / 696 (100 %) | 1046 |
+| BMS | **118 (current)** | `VNSD-0_20260119100535e43806957.bin` | 106,496 B (104 KB) | `0x08002800–0x0801C7FF` | `0x2000CBA0` | `0x08002A6D` | 711 / 711 (100 %) | 740 |
+| BMS | 117.7 | `VNSD-0_20251010135647565eb2036.bin` | 106,496 B (104 KB) | `0x08002800–0x0801C7FF` | `0x2000CB90` | `0x08002A6D` | 710 / 710 (100 %) | 741 |
 
-¹ Status 2026-09-24, counted live from Ghidra. The numbers are higher than before because
-more functions and strings have been defined since. The other rows are status 2026-07-15.
-
-**Common properties of these seven Venus D images:** ARM Cortex-M4F, Thumb-2, little-endian, FreeRTOS
-(`heap_4`, `ARM_CM4F` port), flash base `0x08000000`.
+**Common properties of these nine Venus D images:** ARM Cortex-M4F, Thumb-2, little-endian, FreeRTOS
+(`heap_4`, `ARM_CM4F` port). Load base: Control `0x08004800`, Micro/VNS `0x08004000`, BMS `0x08002800`
+(the region below the base is not part of the update image).
 
 | Firmware | Compiler | Crypto | Cell monitoring | Communication |
 |---|---|---|---|---|
