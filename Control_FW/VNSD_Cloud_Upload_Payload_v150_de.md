@@ -80,6 +80,10 @@ Zeitstempel und ohne Polling.
 
 ## Noch nicht zugeordnet
 
+> **Aktualisierung 2026-10-15:** Diese Liste ist (bis auf `hd`) in
+> [VNSD_Cloud_Upload_Schluesseltabelle_v151_de.md](VNSD_Cloud_Upload_Schluesseltabelle_v151_de.md) aufgeloest, aus dem
+> Code von Control v151 gelesen. Der Text darunter ist der Stand vom 2026-08-25.
+
 31 Keys, hier bewusst ohne Deutung:
 
 ```

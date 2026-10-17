@@ -80,6 +80,10 @@ timestamp and without polling.
 
 ## Not yet assigned
 
+> **Update 2026-10-15:** this list is resolved (all but `hd`) in
+> [VNSD_Cloud_Upload_Key_Table_v151.md](VNSD_Cloud_Upload_Key_Table_v151.md), read from the Control v151
+> code. The text below is the state of 2026-08-25.
+
 31 keys, deliberately left here without interpretation:
 
 ```
