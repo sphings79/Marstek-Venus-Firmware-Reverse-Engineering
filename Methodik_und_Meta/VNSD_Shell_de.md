@@ -1,30 +1,29 @@
 # Marstek Venus D — CLI Shell: Architektur, Befehle, Zugangswege
 
-> 🇬🇧 English version: [VNSD_Shell_de.md](VNSD_Shell_de.md)
+> 🇬🇧 English version: [VNSD_Shell.md](VNSD_Shell.md)
 
 **Firmware:** v149.2 (`Control_149.2_VNSD-0_app_1492_0702_142136.bin`)  
 **Bezug:** [VNSD_Ghidra_Analyse_Erkenntnisse_de.md](VNSD_Ghidra_Analyse_Erkenntnisse_de.md)
 
 ---
 
-## 0. Praktisches Fazit (nach Live-Tests, Juli 2026)
+## 0. Praktisches Fazit (korrigiert 2026-10-17 anhand Control v151)
 
-> **Die CLI-Shell auf TCP Port 8091 ist von außen nicht nutzbar** — zumindest nicht interaktiv.
+> **Korrektur.** Die Aussagen aus den Live-Tests vom Juli 2026 („Shell stumm, Ausgabe nur auf der UART“, „Befehlstabelle nicht im Binary“) gelten für v151 nicht:
 >
-> Live-Tests (`nc`, Python-Probe, Binary-VenusPacket-Format) ergaben auf **alle** Eingabeformate
-> vollständige Stille. Ursache: Der `printf`-Output der Handler geht auf den internen UART-Debug-Port,
-> nicht zurück durch den TCP-Socket. Ohne physischen Zugang zum UART (Platine öffnen) ist kein
-> Shell-Output sichtbar.
+> - Die Shell-Ausgabe geht **doch** über den TCP-Socket (`Protocol_PutChar` → `Shell_CH395SendData`, Socket 1), sobald ein Client an Port 8091 verbunden ist.
+> - Die Shell wird nur bedient, wenn `g_debugMode == 1` ist (EEPROM 0x900). Im Standardmodus 0 läuft in `Task_rs485` Modbus-RTU, und niemand liest Port 8091. Deshalb waren die Tests stumm.
+> - Die Befehlstabelle liegt im Image (`shellCommandTable` @ 0x08062cc4, 81 Einträge). Befehle werden über den **Namensstring** gefunden, nicht über 4-Byte-Muster; die 4-Byte-Einträge sind die 10 Tastenbelegungen.
+> - Einschalten (Modbus-Schreibzugriff `0x5100` auf Register 46000), Befehlsliste und Risiken: [VNSD_Shell_Befehlsreferenz_v151_de.md](VNSD_Shell_Befehlsreferenz_v151_de.md).
 >
-> Zusätzlich sind die 4-Byte-Match-Muster der Befehlstabelle nicht bekannt — sie liegen in
-> Flash-Sektor 7 (0x08060000–0x0807FFFF), der nicht im verteilten Binary enthalten ist.
+> Der Rest dieses Dokuments ist die Analyse von v149.2 und bleibt unverändert stehen; die Abschnitte 3, 4, 5 und 8 enthalten Aussagen, die die v151-Referenz ersetzt (dort markiert).
 >
 > **Interface-Übersicht:**
 >
 > | Port | Protokoll | Status | Fazit |
 > |------|-----------|--------|-------|
 > | 502 | Modbus TCP | ✅ aktiv | HA-Integration, voll nutzbar |
-> | 8091 | TCP CLI-Shell | verbindet, aber stumm | Output auf UART, nicht zugänglich |
+> | 8091 | TCP CLI-Shell | nur bei `g_debugMode` 1 bedient | stumm in Modus 0; siehe v151-Referenz |
 > | 30000 | **UDP** JSON-RPC | ⛔ nicht aktivieren | zerstört Modbus-Register dauerhaft |
 > | BLE | Binary VenusPacket | ✅ aktiv | `[0x73][len][0x23][cmd][payload][xor]` |
 
@@ -128,6 +127,8 @@ Das Muster wird **byte-weise von MSB nach LSB** akkumuliert. 4 Bytes ergeben ein
 
 ---
 
+> **Überholt (v151):** Die „4-Byte-Muster“ oben sind die Tastenbelegungen der Tabelle; Befehle werden über den Namen gefunden. Die Tabelle steht im v151-Image. Siehe [VNSD_Shell_Befehlsreferenz_v151_de.md](VNSD_Shell_Befehlsreferenz_v151_de.md) §1. Die Handler-Zuordnungen in §4 (z. B. `err_code`, `ext_info`) wurden aus Strings geraten; die richtigen stehen in der Referenz.
+
 ## 4. Bekannte Befehle (aus String-Analyse)
 
 Die folgenden Strings liegen bei **0x08055xxx** im Binary mit `referenceCount=0`. Das ist der sichere Beweis, dass sie CLI-Befehlsnamen sind — die Zeiger aus der Tabelle bei 0x08060EF8 fehlen im Ghidra-Modell.
@@ -230,7 +231,7 @@ nc <device-ip> 8091
 ```
 
 **Besonderheiten:**
-- Aktivierung: RAM-Flag `0x20000132 == 1` muss gesetzt sein (Socket-Type-Selektor)
+- Aktivierung: `g_debugMode` (RAM `0x20000132`, EEPROM 0x900) muss 1 sein; nur dann wird der Socket gelesen (v151-Referenz §1.1)
 - Byte `0x03` (Ctrl+C/ETX) setzt den Log-Modus zurück: `log_SetModeAndLevel(0)`
 - Verbindungsaufbau läuft über `CH395_Recv_Buffer_Setup @ 0x080195A4`, der auch `CLI_InitSession` aufruft
 
@@ -350,6 +351,8 @@ struct CLI_Context {
 ```
 
 ---
+
+> **Update 2026-10-17 (v151):** Punkte 1, 3 und 4 sind geklärt: Befehle werden über den Namen gefunden (keine Muster nötig), die Tabelle liegt im v151-Image, Parameter sind einfache Tokens nach dem Namen. Offene Punkte stehen in [VNSD_Shell_Befehlsreferenz_v151_de.md](VNSD_Shell_Befehlsreferenz_v151_de.md) §4.
 
 ## 8. Offene Fragen / Nächste Schritte
 

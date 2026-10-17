@@ -7,24 +7,23 @@
 
 ---
 
-## 0. Practical conclusion (after live tests, July 2026)
+## 0. Practical conclusion (corrected 2026-10-17 from Control v151)
 
-> **The CLI shell on TCP port 8091 is not usable from outside** — at least not interactively.
+> **Correction.** The statements of the July 2026 live tests ("shell silent, output only on the UART", "command table not in the binary") do not hold for v151:
 >
-> Live tests (`nc`, Python probe, binary VenusPacket format) produced complete silence on **all** input formats.
-> Cause: the `printf` output of the handlers goes to the internal UART debug port,
-> not back through the TCP socket. Without physical access to the UART (opening the board) no
-> shell output is visible.
+> - The shell output **does** go over the TCP socket (`Protocol_PutChar` → `Shell_CH395SendData`, socket 1) as soon as a client is connected to port 8091.
+> - The shell is only served when `g_debugMode == 1` (EEPROM 0x900). In the default mode 0, `Task_rs485` runs Modbus RTU and nobody reads port 8091. That is why the tests were silent.
+> - The command table is in the image (`shellCommandTable` @ 0x08062cc4, 81 entries). Commands are matched by **name string**, not by 4-byte patterns; the 4-byte entries are the 10 key bindings.
+> - How to enable the shell (Modbus write `0x5100` to register 46000), the command list and the risks: [VNSD_Shell_Command_Reference_v151.md](VNSD_Shell_Command_Reference_v151.md).
 >
-> In addition, the 4-byte match patterns of the command table are not known — they reside in
-> flash sector 7 (0x08060000–0x0807FFFF), which is not contained in the distributed binary.
+> The rest of this document is the v149.2 analysis and is kept as written; sections 3, 4, 5 and 8 contain statements that the v151 reference supersedes (marked there).
 >
 > **Interface overview:**
 >
 > | Port | Protocol | Status | Conclusion |
 > |------|-----------|--------|-------|
 > | 502 | Modbus TCP | ✅ active | HA integration, fully usable |
-> | 8091 | TCP CLI shell | connects, but silent | Output on UART, not accessible |
+> | 8091 | TCP CLI shell | served only in `g_debugMode` 1 | silent in mode 0; see the v151 reference |
 > | 30000 | **UDP** JSON-RPC | ⛔ do not enable | permanently destroys Modbus registers |
 > | BLE | Binary VenusPacket | ✅ active | `[0x73][len][0x23][cmd][payload][xor]` |
 
@@ -128,6 +127,8 @@ The pattern is accumulated **byte by byte from MSB to LSB**. 4 bytes yield a com
 
 ---
 
+> **Superseded (v151):** the "4-byte patterns" below are the key-binding entries of the table; commands are matched by name. The table is contained in the v151 image. The handler assignments in §4 (e.g. `err_code`, `ext_info`) were guessed from strings; the correct ones are in the reference. See [VNSD_Shell_Command_Reference_v151.md](VNSD_Shell_Command_Reference_v151.md) §1.
+
 ## 4. Known commands (from string analysis)
 
 The following strings are located at **0x08055xxx** in the binary with `referenceCount=0`. This is reliable proof that they are CLI command names — the pointers from the table at 0x08060EF8 are missing in the Ghidra model.
@@ -230,7 +231,7 @@ nc <device-ip> 8091
 ```
 
 **Particulars:**
-- Activation: RAM flag `0x20000132 == 1` must be set (socket type selector)
+- Activation: `g_debugMode` (RAM `0x20000132`, EEPROM 0x900) must be 1; the socket is read only then (v151 reference §1.1)
 - Byte `0x03` (Ctrl+C/ETX) resets the log mode: `log_SetModeAndLevel(0)`
 - Connection setup runs via `CH395_Recv_Buffer_Setup @ 0x080195A4`, which also calls `CLI_InitSession`
 
@@ -350,6 +351,8 @@ struct CLI_Context {
 ```
 
 ---
+
+> **Update 2026-10-17 (v151):** items 1, 3 and 4 are resolved: commands are matched by name (no patterns needed), the table is in the v151 image, parameters are plain tokens after the name. Open points are listed in [VNSD_Shell_Command_Reference_v151.md](VNSD_Shell_Command_Reference_v151.md) §4.
 
 ## 8. Open questions / next steps
 
