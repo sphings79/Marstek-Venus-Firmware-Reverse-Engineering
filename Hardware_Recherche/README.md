@@ -25,12 +25,14 @@ are in `Control_FW/`, `VNS_Micro_Inverter/`, `BMS/`.
 ## Internal photos / teardowns (`Teardown_Fotos/`)
 
 - There are no public teardown photos of the Venus D (search in forums, YouTube, Bilibili, Reddit, GitHub).
+- Own photos of an opened Venus D (board fully potted, ICs not legible): `Hardware_Recherche/Marstek Venus D/` – description in [VNSD_Teardown_Photos.md](Marstek%20Venus%20D/VNSD_Teardown_Photos.md).
 - The only source with PCB photos: YouTube video „Ремонт Marstek Venus A, не вмикається!“ from the channel **AMP Service**
   (Vinnytsia), https://www.youtube.com/watch?v=ujSDFebJVoE, and Instagram reel from `amp_service_vin`.
   Board marking **HAME-POWER-H1200_V4.0, 2025-09-25** (Venus A). Three QFP processors (markings not legible
   through the potting compound), pin headers J15 `3.3V/DIO/CLK/GND` (SWD) and J16 `3.3V/TX/RX/GND` (UART), another with `GND/TMS/3.3V`.
   Components shown in the video: Infineon BSC026N08NS5 (80 V MOSFET), Silan SVS60R190 (600 V MOSFET).
 - The two PNG files are screenshots from this video.
+- Own photos of the Venus A **BMS board** (not potted, MCU Nations N32G455VEL7, AFE Sinowealth SH36735, unpopulated UART/SWD header J3/J2; plus CAN connector of the head unit and the 12-pin pack housing connector, 43 photos in total): `Hardware_Recherche/Marstek Venus A/` – see [VNSA_BMS_Board_Photos.md](Marstek%20Venus%20A/VNSA_BMS_Board_Photos.md).
 - `Hardware_Recherche/Teardown_Fotos/*_findings.md` – search logs of the three search passes (contain the outdated assumption "STM32F3" for the Control).
 
 ## Approval documents (`Zertifikate/`)

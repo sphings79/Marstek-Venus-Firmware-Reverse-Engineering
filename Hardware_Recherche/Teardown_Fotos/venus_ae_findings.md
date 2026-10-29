@@ -9,6 +9,8 @@
 
 **No publicly available teardown photos of the Marstek Venus A or Venus E found.**
 
+> Update 2026-10-28: own photos of the Venus A BMS board now exist, see [VNSA_BMS_Board_Photos.md](../Marstek%20Venus%20A/VNSA_BMS_Board_Photos.md).
+
 ### Sources searched
 
 | Source | Status | Result |
