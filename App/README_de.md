@@ -20,6 +20,7 @@ Die `cd`-Nummerierung gilt pro Produkt. Aktuell analysierte Version: **1.6.76** 
 | [Marstek_App_Dekompilierung_Methode_de.md](Marstek_App_Dekompilierung_Methode_de.md) | Wie der Dart-AOT-Code analysiert wurde (Blutter), Lesetipps, durchgespieltes Beispiel „Akkupack-Wiederherstellung“ |
 | [Marstek_App_Befehlsvokabular_1.6.76_de.md](Marstek_App_Befehlsvokabular_1.6.76_de.md) | Befehlsvokabular der App 1.6.76 (BLE-Befehle und MQTT-`cd=`-Codes je Produkt) |
 | [Marstek_App_vs_Firmware_Befehlszuordnung_de.md](Marstek_App_vs_Firmware_Befehlszuordnung_de.md) | Zuordnung der App-Befehle zu den Dispatchern der Control-Firmware |
+| [Marstek_Cloud_MQTT_B2500_Hersteller_Doku_de.md](Marstek_Cloud_MQTT_B2500_Hersteller_Doku_de.md) | Zusammenfassung der MQTT-Protokollseite des Herstellers (B2500-Familie, Versionen 212 bis 220): Telemetriefelder und `cd=`-Befehle |
 
 ## Verwandte Dokumente
 
