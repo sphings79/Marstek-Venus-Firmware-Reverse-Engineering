@@ -4,7 +4,7 @@
 "4","InverterState","0x20014E9C","35100","",""
 "5","","0x20001F4C","30300","",""
 "6","","","","1","nur BLE"
-"7","CTConnected","0x2001A83C","","","nur BLE"
+"7","CTConnected","0x2001A83C","","g_meterDataValidFlag (meter data valid, not a CT hardware state; same flag as ct_state in the API)","BLE und API, nicht Modbus"
 "8","","","","uVar4","nur BLE"
 "11","SoC","","","uVar4","nur BLE"
 "12","","0x20014CF6","","","nur BLE"

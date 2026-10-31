@@ -29,10 +29,11 @@ Der Rest sind Konstanten, Zwischenvariablen oder Rechnungen — die stehen in de
 | | Zeilen |
 |---|---|
 | beidseitig belegt (Modbus **und** BLE) | 19 |
-| nur BLE | 60 |
+| nur BLE | 59 |
+| BLE und API, nicht Modbus | 1 (`CTConnected`, BLE `0x07`: das Flag „Meterdaten gültig“, in der API auch `ct_state`) |
 | nur Modbus | 362 |
 
-**Der BLE-Payload ist also nicht die ärmere Schnittstelle.** Er trägt 60 Felder, die über
+**Der BLE-Payload ist also nicht die ärmere Schnittstelle.** Er trägt 59 Felder, die über
 Modbus nicht erreichbar sind — darunter die beiden berechneten Leistungswerte.
 
 ### Gesichert beidseitig

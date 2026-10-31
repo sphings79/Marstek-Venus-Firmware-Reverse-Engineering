@@ -29,10 +29,11 @@ The rest are constants, intermediate variables or calculations — these are lis
 | | Rows |
 |---|---|
 | occupied on both sides (Modbus **and** BLE) | 19 |
-| BLE only | 60 |
+| BLE only | 59 |
+| BLE and API, not Modbus | 1 (`CTConnected`, BLE `0x07`: the meter-data-valid flag, also `ct_state` in the API) |
 | Modbus only | 362 |
 
-**The BLE payload is therefore not the poorer interface.** It carries 60 fields that cannot be reached via
+**The BLE payload is therefore not the poorer interface.** It carries 59 fields that cannot be reached via
 Modbus — including the two calculated power values.
 
 ### Secured on Both Sides
