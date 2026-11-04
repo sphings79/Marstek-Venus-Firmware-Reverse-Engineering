@@ -387,7 +387,7 @@ The E3 Control 151 uses the same descriptor table and the same `0xAA` CAN dispat
 3. Purpose of the 4000 mV report clamp after start (§5) and of the unread EEPROM blocks `0x0000` and `0x012C`.
 4. 45031 timing (Control waits 5 s, the E3 BMS needs an IWDG timeout of about 10 s).
 5. Short-circuit timer tick unit (5000 ticks; TIM2 at 2 MHz would give 2.5 ms — not verified).
-6. Reference-program naming issues seen on the way (D 118; the GPIO helper swap listed here has since been corrected in D 118): `CAN_SetTxMailboxTDLR/TIR` and
+6. Reference-program naming issues seen on the way (D 118; the GPIO helper swap listed here has since been corrected in D 118): `CAN_SetTxMailboxTDLR/TIR` (renamed 2026-11-04 to `GPIO_ResetBits`/`GPIO_SetBits` in D 117.7/118, A 110/1105/115 and E3 115) and
    `CAN_Set_FilterBank_FR1..3`/`CAN_SetTxMailboxTDHR` are GPIO BRR/BSRR and TIM CCR setters, `GPIO_Init_Output_PP_50MHz` and
    `GPIO_Init_Input_Floating` were swapped in D (now corrected), `APP_ShellTable_Init_Then_Main` is `__scatterload`, `APP_SystemFaultHalt` is
    `main()`, `NTC_ConvertAndUpdatePackTempExtremes` (D) is an OCV bound recalibration (`SOC_RecalibrateBoundsFromOcv` in
