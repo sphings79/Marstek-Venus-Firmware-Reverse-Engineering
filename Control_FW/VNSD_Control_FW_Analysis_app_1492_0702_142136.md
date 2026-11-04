@@ -901,11 +901,10 @@ assignment follows the write handler decompilation (section 7.6) and the SRAM ta
 > **⚠️ Discrepancy reg 40000 vs. 42000 (RS485 unlock):**
 > The decompiled write handler shows **reg 40000** as the RS485 unlock handler
 > (0x55AA check). The previous documentation and live tests use **reg 42000**.
-> Possible explanation: reg 40000 is write-only (error 2 on FC03) and was therefore
-> never found in the batch scan. In practice reg 42000 works — possibly
-> a second code path exists (e.g. via unrecovered jump tables in the write handler),
-> or the live documentation refers to a different register with the same
-> unlock semantics. **Both variants must be verified by live test.**
+> **Superseded (2026-11):** the hypothesis above (second code path via unrecovered jump tables) no longer applies.
+> The RS485 unlock is **register 42000** (`0x55AA` on / `0x55BB` off, shares the byte `g_userWorkMode` with 43000); the
+> 0x55AA branch in the old Write_Handler decompile was mis-attributed to 40000 (same kind of mis-attribution as noted
+> in `VNSD_Network_Dropouts_During_Register_Scan_2026-09-20.md`). See `VNSD_Register_Persistence_RAM_vs_EEPROM_v150.md` §6a.
 
 **Schedule struct (10 bytes, 6 slots @ reg 43100–43129):**
 
@@ -1601,7 +1600,7 @@ From the descriptor table schema (246 entries), 413 scanned registers
 
 | Topic | Details | Next step |
 |---|---|---|
-| **Reg 40000 vs. 42000** | Code shows 40000 as RS485 unlock (0x55AA), documentation/live uses 42000 | Test FC06 write to 40000 with 0x55AA |
+| **Reg 40000 vs. 42000** | Code shows 40000 as RS485 unlock (0x55AA), documentation/live uses 42000 | Resolved: 42000 is the unlock (see note at the discrepancy block) |
 | **Reg 41500–41631** | Schedule arrays (previously undocumented) | Set a schedule, then read the registers |
 | **Reg 45000–45031** | Command registers (reboot, SMR, GPIO) — **dangerous!** | Test only after backup |
 | **Reg 46000** | OTA command register | **DO NOT test** without an OTA image |

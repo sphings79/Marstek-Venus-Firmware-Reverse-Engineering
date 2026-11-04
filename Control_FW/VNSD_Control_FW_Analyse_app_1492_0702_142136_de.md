@@ -901,11 +901,10 @@ Zuordnung ist gemäß Write-Handler-Dekompilierung (Abschnitt 7.6) und SRAM-Tabe
 > **⚠️ Diskrepanz Reg 40000 vs. 42000 (RS485-Unlock):**
 > Der dekompilierte Write-Handler zeigt **Reg 40000** als den RS485-Unlock-Handler
 > (0x55AA-Prüfung). Die bisherige Dokumentation und Live-Tests nutzen **Reg 42000**.
-> Mögliche Erklärung: Reg 40000 ist write-only (Error 2 bei FC03) und wurde daher
-> im Batch-Scan nie gefunden. In der Praxis funktioniert Reg 42000 — möglicherweise
-> existiert ein zweiter Codepfad (z.B. über unrecovered Jump-Tables im Write-Handler),
-> oder die Live-Dokumentation bezieht sich auf ein anderes Register mit derselben
-> Unlock-Semantik. **Beide Varianten müssen per Live-Test verifiziert werden.**
+> **Überholt (2026-11):** Die obige Hypothese (zweiter Codepfad über nicht rekonstruierte Jump-Tables) gilt nicht mehr.
+> Der RS485-Unlock ist **Register 42000** (`0x55AA` an / `0x55BB` aus, teilt sich das Byte `g_userWorkMode` mit 43000); der
+> 0x55AA-Zweig im alten Write-Handler-Dekompilat war fälschlich 40000 zugeordnet (gleiche Fehlzuordnung wie in
+> `VNSD_Netzabrisse_waehrend_Registerscan_2026-09-20_de.md` vermerkt). Siehe `VNSD_Register_Persistenz_RAM_vs_EEPROM_v150_de.md` §6a.
 
 **Zeitplan-Struct (10 Bytes, 6 Slots @ Reg 43100–43129):**
 
@@ -1602,7 +1601,7 @@ Aus dem Descriptor-Table-Schema (246 Einträge), 413 gescannten Registern
 
 | Thema | Details | Nächster Schritt |
 |---|---|---|
-| **Reg 40000 vs. 42000** | Code zeigt 40000 als RS485-Unlock (0x55AA), Doku/Live nutzt 42000 | FC06-Write auf 40000 mit 0x55AA testen |
+| **Reg 40000 vs. 42000** | Code zeigt 40000 als RS485-Unlock (0x55AA), Doku/Live nutzt 42000 | Gelöst: 42000 ist der Unlock (siehe Hinweis beim Diskrepanz-Block) |
 | **Reg 41500–41631** | Zeitplan-Arrays (bisher undokumentiert) | Zeitplan setzen, dann Register lesen |
 | **Reg 45000–45031** | Befehls-Register (Reboot, SMR, GPIO) — **gefährlich!** | Nur nach Backup testen |
 | **Reg 46000** | OTA-Kommando-Register | **NICHT testen** ohne OTA-Image |

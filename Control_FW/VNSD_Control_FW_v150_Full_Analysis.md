@@ -344,7 +344,7 @@ EEPROM-persistent, PV feed-in start value without 2500-W clamp (§5), new shell 
 - As in neighbor versions unchanged and not re-proven in detail here: 32101 sign error in read serializer, MBAP length 4 instead of 3 at exception responses, 44002/44003 read 0 after reboot (shadow value) — from diff docs/v151 full analysis, not re-traced step-by-step for v150.
 - How much PV power 2500-W throttle actually costs at battery top-of-charge taper not measured (`VNSD_Control_Charge_Power_PV_Curtailment_v150.md` §7).
 - 31 unmatched fields in cloud upload payload (`VNSD_Cloud_Upload_Payload_v150.md`).
-- `__vfscanf` (newly linked in v149.2→v150 step C library function): triggering call site not located in code (`VNSD_Control_Diff_v1492_v150.md`).
+- `__vfscanf`: not new in v150. It already exists in v149 and v149.2 (it was hidden inside a wrongly merged `__scatterload`; caller `sscanf_Format_Parser`); in v147 it is probably merged into `sscanf_Format_Parser` (830 B = 20 + 810, inferred). Only its separate listing in the diff is new (`VNSD_Control_Diff_v1492_v150.md`).
 - `ShellCmd_FreeRtos_mem`: linked via shell command linker section instead of normal call table, no code cross-reference found (function itself clear: outputs free/minimum-ever-free FreeRTOS heap, §4.3).
 - Fallthrough fix at BLE command `Y`→`Z` (§7): whether misalignment observable in v149.2 (missing `break`) actually triggered or was consequence-free was not verified.
 

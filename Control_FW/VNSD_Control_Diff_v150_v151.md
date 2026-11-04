@@ -132,10 +132,19 @@ in change table anymore).
   TBH 16 entries. Both decompilations contain no unrecovered jump table (77 vs 78 case labels). Case labels
   differ only in the high-register switch (v150 explicit `case 0xafdf` = `Inverter_Set_Reg_0xFE`, v151
   `case 0xafe6` plus the additional TBH entry); the callee multiset is identical except the new
-  `CAN_Write_Category0x18` call. The core changes named above (registers 0xB799, 0xAFE6 slot,
-  `CAN_Write_Category0x18`) are verified at code; a complete branch-by-branch equivalence proof of the
-  remaining branches was still not done, so small deviations in uninvolved branches cannot be ruled out
-  (medium rather than high confidence).
+  `CAN_Write_Category0x18` call. Equivalence check (2026-11-04): the normalized statement multisets of both decompilations (local names unified,
+  addresses masked; 514 vs 517 statements) differ in only 15 resp. 18 statements, all explained: (1) the three real
+  changes (OTA-target block, register 0xB799, register 0xAFE6); (2) in the OTA-target block v150 sets
+  `g_otaTargetDevice` and then returns exception code 2, v151 returns 0 after `CAN_Write_Category0x18` (3 on read);
+  (3) re-split dispatch trees and shifted index bases (`reg - 45000` vs `reg - 0xAFC9`, `0xA86E` vs `0xA86F`),
+  and line wrapping. Checked entry by entry: the TOU schedule fields 0xA85E-0xA879 (Power, Enabled, Weekday,
+  Start, End with a 5-register period; same register-to-body mapping in v150 and v151, the TBH has 15 entries plus an
+  explicit case in v150 and 16 entries in v151); the command block 0xAFC8-0xAFE5 (every register maps to the same
+  action; v150 `case 0xAFDF` = v151 index 0x16 = `Inverter_Set_Reg_0xFE`, the same register, not a change); 0xAFE6
+  is new in v151 (`Config_Apply_SingleReg(0x0B/0x0C)`), v150 answers it with exception code 2. Not checked entry by
+  entry: the remaining dispatch edges of the earlier branches (statement bodies there are identical). Confidence:
+  high for the bodies, medium-high for the dispatch of the untouched branches. Script:
+  `Scripts/write_handler_equiv_check.py` (private repo).
 - Additional initializer `DAT_2001A8AA = 0xA892` in `Config_LoadOrInit_DeviceSettings` (v151, 2 bytes after
   "VNSD-0" string in device ID setup) – purpose not apparent from this function alone.
 - Whether new MQTT command `cd=0x42` ("Get INV DEBUG info", maintenance mode + `MQTT_Publish_WorkMode_Config` +

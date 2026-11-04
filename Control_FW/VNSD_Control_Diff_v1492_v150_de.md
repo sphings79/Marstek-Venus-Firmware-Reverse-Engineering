@@ -70,8 +70,7 @@ als „echt" gelisteten Änderungen waren zudem falsch interpretiert (siehe „K
   modemseitigen `AT+QHTTPPOST`-Ablauf in `HTTP_Task_StateMachine_Handler`
 - `FreeRTOS_xPortGetFreeHeapSize` / `FreeRTOS_xPortGetMinimumEverFreeHeapSize` + neuer Shell-Befehl
   `ShellCmd_FreeRtos_mem` – gibt freien/minimal-freien FreeRTOS-Heap über die Konsole aus
-- `__vfscanf` – C-Bibliotheksroutine, neu mit eingebunden (ein scanf-Codepfad wird in v150 erstmals
-  erreicht; auslösende Aufrufstelle nicht lokalisiert)
+- `__vfscanf` – C-Bibliotheksroutine, **nicht neu**: bereits in v149/v149.2 vorhanden (steckte im falsch gemergten `__scatterload`; Aufrufer `sscanf_Format_Parser`); in v147 vermutlich in `sscanf_Format_Parser` gemergt (abgeleitet). Sie erscheint nur wegen des Merge-Fehlers im v149.2-Programm als neu.
 
 ## Entfernte Funktion
 
@@ -253,7 +252,7 @@ Notify) — gibt dem Modem mehr Anlaufzeit.
 
 - `Battery_EPS_Reserve_SOC_Hysteresis`: Bedeutung des neu auf 1 gesetzten Low-Bytes im CAN-0xCF-Report
   nicht ermittelt
-- `__vfscanf` (neu eingebundene C-Bibliotheksfunktion): auslösende Aufrufstelle nicht lokalisiert
+- `__vfscanf`: nicht neu (siehe oben); kein offener Punkt.
 - `ShellCmd_FreeRtos_mem`: über die Shell-Kommando-Linker-Sektion eingebunden statt über eine normale
   Aufruftabelle, kein Code-Querverweis auffindbar (Funktion selbst aber eindeutig: gibt freien/minimal
   freien FreeRTOS-Heap aus)

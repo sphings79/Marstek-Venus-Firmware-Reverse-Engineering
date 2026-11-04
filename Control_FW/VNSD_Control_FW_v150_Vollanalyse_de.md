@@ -365,8 +365,7 @@ EEPROM-persistent, PV-Einspeise-Startwert ohne 2500-W-Klemme (§5), neue Shell-B
 - Wie viel PV-Leistung die 2500-W-Abregelung im Top-of-Charge-Taper der Batterie tatsächlich kostet, ist
   nicht gemessen (`VNSD_Control_Ladeleistung_PV_Abregelung_v150_de.md` §7).
 - 31 unzugeordnete Felder im Cloud-Upload-Payload (`VNSD_Cloud_Upload_Payload_v150_de.md`).
-- `__vfscanf` (neu im v149.2→v150-Schritt eingebundene C-Bibliotheksfunktion): auslösende Aufrufstelle
-  im Code nicht lokalisiert (`VNSD_Control_Diff_v1492_v150_de.md`).
+- `__vfscanf`: in v150 nicht neu. Sie existiert bereits in v149 und v149.2 (steckte im falsch gemergten `__scatterload`; Aufrufer `sscanf_Format_Parser`); in v147 vermutlich in `sscanf_Format_Parser` gemergt (830 B = 20 + 810, abgeleitet). Neu ist nur ihr separater Eintrag im Diff (`VNSD_Control_Diff_v1492_v150_de.md`).
 - `ShellCmd_FreeRtos_mem`: über die Shell-Kommando-Linker-Sektion eingebunden statt über eine normale
   Aufruftabelle, kein Code-Querverweis auffindbar (Funktion selbst eindeutig: gibt freien/minimal freien
   FreeRTOS-Heap aus, §4.3).

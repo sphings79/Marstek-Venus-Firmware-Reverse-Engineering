@@ -61,8 +61,8 @@ for overall jump.
 - Peak-shaving: `Config_Read_PowerClampMode_0x394`, `Config_Write_PowerClampMode_0x394`,
   `MQTT_Publish_Grid_Status`
 - Other: `Quectel_SSL_ConfigVersion`, `Quectel_HTTP_POST_SendAndVerify`,
-  `FreeRTOS_xPortGetFreeHeapSize`, `FreeRTOS_xPortGetMinimumEverFreeHeapSize`, `ShellCmd_FreeRtos_mem`,
-  `__vfscanf`
+  `FreeRTOS_xPortGetFreeHeapSize`, `FreeRTOS_xPortGetMinimumEverFreeHeapSize`, `ShellCmd_FreeRtos_mem`
+  (`__vfscanf` is not new: it exists in v149/v149.2, hidden in a wrongly merged `__scatterload`)
 
 ## Removed Function
 
@@ -93,8 +93,7 @@ OTA/BLE-OTA/YMODEM path, `hamedata.com` endpoints themselves.
 - Meaning of unused halves of new BMS pack field pair at offset 0x58/0x5c.
 - `Battery_EPS_Reserve_SOC_Hysteresis`: meaning of newly set low byte in CAN-0xCF report
   not determined.
-- `__vfscanf` (newly linked in v149.2→v150 step C library function) and `ShellCmd_FreeRtos_mem`: triggering call site or caller not
-  located.
+- `ShellCmd_FreeRtos_mem`: caller not located. (`__vfscanf` is not new, see above.)
 - Whether fixed fallthrough bug BLE `Y`→`Z` in v149.2 actually triggered observable misbehavior
   was not verified.
 - Fine content of large state machines (`HTTP_Task_StateMachine_Handler`, `MQTT_CtrlCommand_Dispatcher`,

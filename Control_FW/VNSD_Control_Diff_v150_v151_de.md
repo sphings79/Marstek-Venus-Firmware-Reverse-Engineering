@@ -135,10 +135,18 @@ mehr in der Änderungstabelle).
   Sprungtabelle (77 gegenüber 78 Case-Labels). Die Case-Labels unterscheiden sich nur im Switch des hohen
   Registerbereichs (v150 expliziter `case 0xafdf` = `Inverter_Set_Reg_0xFE`, v151 `case 0xafe6` plus der
   zusätzliche TBH-Eintrag); die Menge der aufgerufenen Funktionen samt Aufrufzahl ist bis auf den neuen Aufruf
-  `CAN_Write_Category0x18` identisch. Die genannten Kernänderungen (Register 0xB799, 0xAFE6-Slot,
-  `CAN_Write_Category0x18`) sind am Code verifiziert; ein vollständiger Zweig-für-Zweig-Äquivalenznachweis der
-  übrigen Zweige wurde weiterhin nicht geführt, kleine Abweichungen in unbeteiligten Zweigen sind daher nicht
-  ausgeschlossen (mittlere statt hohe Konfidenz).
+  `CAN_Write_Category0x18` identisch. Äquivalenzprüfung (2026-11-04): Die normalisierten Statement-Multimengen beider Dekompilate (lokale Namen vereinheitlicht,
+  Adressen maskiert; 514 gegenüber 517 Statements) unterscheiden sich nur in 15 bzw. 18 Statements, alle erklärt: (1) die drei
+  echten Änderungen (OTA-Ziel-Block, Register 0xB799, Register 0xAFE6); (2) im OTA-Ziel-Block setzt v150
+  `g_otaTargetDevice` und liefert danach Exception-Code 2, v151 liefert nach `CAN_Write_Category0x18` 0 (3 beim Lesen);
+  (3) neu aufgeteilte Verteilerbäume und verschobene Indexbasen (`reg - 45000` gegenüber `reg - 0xAFC9`, `0xA86E` gegenüber
+  `0xA86F`) sowie Zeilenumbrüche. Eintrag für Eintrag geprüft: die TOU-Zeitplanfelder 0xA85E-0xA879 (Power, Enabled, Weekday,
+  Start, End mit 5-Register-Periode; gleiche Zuordnung Register zu Rumpf in v150 und v151, die TBH hat in v150 15 Einträge plus
+  expliziten Fall, in v151 16 Einträge); der Befehlsblock 0xAFC8-0xAFE5 (jedes Register führt dieselbe Aktion aus; v150
+  `case 0xAFDF` = v151 Index 0x16 = `Inverter_Set_Reg_0xFE`, dasselbe Register, keine Änderung); 0xAFE6 ist in v151 neu
+  (`Config_Apply_SingleReg(0x0B/0x0C)`), v150 beantwortet es mit Exception-Code 2. Nicht Eintrag für Eintrag geprüft: die
+  übrigen Verteilerränder der früheren Zweige (die Rümpfe dort sind identisch). Konfidenz: hoch für die Rümpfe, mittel bis hoch
+  für den Verteiler der unveränderten Zweige. Skript: `Scripts/write_handler_equiv_check.py` (privates Repo).
 - Zusätzlicher Initialisierer `DAT_2001A8AA = 0xA892` in `Config_LoadOrInit_DeviceSettings` (v151, 2 Byte nach
   dem „VNSD-0“-String im Geräte-ID-Setup) – Zweck aus dieser Funktion allein nicht erkennbar.
 - Ob das neue MQTT-Kommando `cd=0x42` („Get INV DEBUG info“, Wartungsmodus + `MQTT_Publish_WorkMode_Config` +

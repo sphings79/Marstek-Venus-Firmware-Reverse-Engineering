@@ -1659,7 +1659,7 @@ Status: 06.07.2026
 |---|---|---|---|
 | `0x08001d8c` | `System_Init_Main` | 278B | Main system initialization |
 | `0x08001eb8` | `INIT_All_Peripherals` | 40B | Initialize all peripherals |
-| `0x080011e4` | `INIT_GPIO_SPI_CS_Pins` | 28B | SPI chip-select pins |
+| `0x080011e4` | `INIT_ADC_Pins_Float_And_ADC1_Off` | 28B | ADC input pins (PA0-PA2, PC3) to floating input, ADC1 ADON off (formerly `INIT_GPIO_SPI_CS_Pins`) |
 | `0x080014b4` | `INIT_I2C2_GPIO` | 30B | I2C2 GPIO pins |
 | `0x08001f2c` | `INIT_I2C_EEPROM_GPIO` | 78B | I2C EEPROM GPIO pins |
 | `0x080020d4` | `INIT_GPIO_PortC_Pins10_11` | 22B | Port C pins 10/11 |

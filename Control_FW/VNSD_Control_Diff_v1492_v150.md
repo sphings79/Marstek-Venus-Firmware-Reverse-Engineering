@@ -61,8 +61,7 @@ For v150 a manufacturer changelog exists (`CHANGELOG.de.md`, local only, not in 
   `AT+QHTTPPOST` sequence in `HTTP_Task_StateMachine_Handler`
 - `FreeRTOS_xPortGetFreeHeapSize` / `FreeRTOS_xPortGetMinimumEverFreeHeapSize` + new shell command
   `ShellCmd_FreeRtos_mem` – outputs free/minimal-free FreeRTOS heap via console
-- `__vfscanf` – C library routine, newly linked (one scanf code path reached for first time in v150;
-  triggering call site not localized)
+- `__vfscanf` – C library routine, **not new**: already present in v149/v149.2 (hidden in a wrongly merged `__scatterload`; caller `sscanf_Format_Parser`); in v147 probably merged into `sscanf_Format_Parser` (inferred). It only appears as new because of the merge error in the v149.2 program.
 
 ## Removed Function
 
@@ -218,7 +217,7 @@ right after sending AT command added (before notify wait) — gives modem more r
 ## Open Points
 
 - `Battery_EPS_Reserve_SOC_Hysteresis`: meaning of newly set low byte in CAN 0xCF report not determined
-- `__vfscanf` (newly linked C library function): triggering call site not localized
+- `__vfscanf`: not new (see above); no open point.
 - `ShellCmd_FreeRtos_mem`: embedded via shell command linker section instead normal call table, no code cross-reference found (function itself unambiguous: outputs free/minimal free FreeRTOS heap)
 - Fallthrough fix BLE command `Y`→`Z` (Nr. 5): whether observable v149.2 misbehavior triggered by this or consequence unverified
 
