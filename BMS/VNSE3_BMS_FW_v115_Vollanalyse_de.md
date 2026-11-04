@@ -395,7 +395,7 @@ Der E3 Control 151 verwendet dieselbe Deskriptor-Tabelle und denselben `0xAA`-CA
 4. 45031-Timing (das Control wartet 5 s, das E3-BMS braucht ein IWDG-Timeout von etwa 10 s).
 5. Einheit des Kurzschluss-Timer-Ticks (5000 Ticks; TIM2 mit 2 MHz würde 2,5 ms ergeben — nicht verifiziert).
 6. Unterwegs gesehene Benennungsprobleme im Referenzprogramm (D 118; die hier genannte Vertauschung der GPIO-Hilfsfunktionen ist dort inzwischen korrigiert): `CAN_SetTxMailboxTDLR/TIR` (am 2026-11-04 in D 117.7/118, A 110/1105/115 und E3 115 in `GPIO_ResetBits`/`GPIO_SetBits` umbenannt) und
-   `CAN_Set_FilterBank_FR1..3`/`CAN_SetTxMailboxTDHR` sind GPIO-BRR/BSRR- und TIM-CCR-Setter, `GPIO_Init_Output_PP_50MHz` und
+   `CAN_Set_FilterBank_FR1..3`/`CAN_SetTxMailboxTDHR` (am 2026-11-04 in `TIM_SetCompare1..4` umbenannt) sind GPIO-BRR/BSRR- und TIM-CCR-Setter, `GPIO_Init_Output_PP_50MHz` und
    `GPIO_Init_Input_Floating` waren bei D vertauscht (inzwischen korrigiert), `APP_ShellTable_Init_Then_Main` ist `__scatterload`, `APP_SystemFaultHalt` ist
    `main()`, `NTC_ConvertAndUpdatePackTempExtremes` (D) ist eine OCV-Grenzen-Rekalibrierung (`SOC_RecalibrateBoundsFromOcv` im
    E3), `g_shellCrcSelfTestTable` ist die Tabelle der erwarteten KA495XX-Register, `HAL_UART4_SendByte_Blocking` verwendet USART1.

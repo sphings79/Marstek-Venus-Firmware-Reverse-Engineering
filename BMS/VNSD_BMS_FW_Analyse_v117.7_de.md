@@ -1885,9 +1885,9 @@ Stand: 06.07.2026
 | `0x0800d228` | `CAN_Set_TxMailbox_TDHR` | 6B | TX-Mailbox Daten High |
 | `0x0800cf8c` | `CAN_Set_FilterMask_Inverted` | 6B | Filtermaske invertiert |
 | `0x0800d09a` | `CAN_Get_RxFIFO_Data_Low` | 6B | RX FIFO Daten Low |
-| `0x0800d21c` | `CAN_Set_FilterBank_FR1` | 4B | Filterbank Register 1 |
-| `0x0800d220` | `CAN_Set_FilterBank_FR2` | 4B | Filterbank Register 2 |
-| `0x0800d224` | `CAN_Set_FilterBank_FR3` | 4B | Filterbank Register 3 |
+| `0x0800d21c` | `TIM_SetCompare1` | 4B | Timer-Compare-Register CCR1 (vorher `CAN_Set_FilterBank_FR1`) |
+| `0x0800d220` | `TIM_SetCompare2` | 4B | Timer-Compare-Register CCR2 (vorher `CAN_Set_FilterBank_FR2`) |
+| `0x0800d224` | `TIM_SetCompare3` | 4B | Timer-Compare-Register CCR3 (vorher `CAN_Set_FilterBank_FR3`) |
 | `0x08005ae4` | `CAN_CMD_02_Handler` | 12B | CAN Kommando 0x02 |
 
 ### RS485 — RS485 Kommunikation (16 Funktionen)
