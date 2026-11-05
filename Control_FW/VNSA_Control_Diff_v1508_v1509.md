@@ -3,7 +3,7 @@
 > 🇩🇪 Deutsche Version: [VNSA_Control_Diff_v1508_v1509_de.md](VNSA_Control_Diff_v1508_v1509_de.md)
 
 **As of:** 2026-11-05. Image `1508_control_VNSA-0_app_1508_0819_182932.bin` ("A Control 1508", build string `Aug 19 2026 18:29:09`) compared with A Control 1509 (build string `Sep  8 2026 09:34:19`). Both are loaded in Ghidra with base 0x08004800 (1508: 1935 functions, 1509: 1941).
-**Related documents:** [VNSA_Control_FW_v1509_Full_Analysis.md](VNSA_Control_FW_v1509_Full_Analysis.md), [VNSA_Control_Diff_v150_v1509.md](VNSA_Control_Diff_v150_v1509.md), [VNSA_Control_Diff_v1509_v151.md](VNSA_Control_Diff_v1509_v151.md)
+**Related documents:** [VNSA_Control_FW_v1508_Full_Analysis.md](VNSA_Control_FW_v1508_Full_Analysis.md), [VNSA_Control_FW_v1509_Full_Analysis.md](VNSA_Control_FW_v1509_Full_Analysis.md), [VNSA_Control_Diff_v150_v1509.md](VNSA_Control_Diff_v150_v1509.md), [VNSA_Control_Diff_v1509_v151.md](VNSA_Control_Diff_v1509_v151.md)
 
 ## Summary
 
@@ -17,7 +17,7 @@
 ## Method
 
 Anchors: after masking addresses and call operands, **95.19 %** of the 1508 bytes (368,444 of 387,072) are identical to 1509 (452 blocks). Functions are paired via these anchors (1902 identical pairs, 20 partial pairs, 19 of the 1941 1509 functions without direct partner; 16 pairs in the reordered area were checked and corrected by instruction similarity). Then the ordered call targets of all 1935 pairs were compared: 21 findings, all inside functions that are changed anyway, none among the 1902 identical pairs (no false pairing); the changed functions were compared on normalised decompiler output.
-Caveat: the comment headers of the 1508 function exports were ported from 1509; where they contradict the 1508 code (for example the `BLE_Set_Device_Name` header says `MST_VNSA_`), the code is authoritative.
+Comment headers: the comment headers of the 1508 functions were ported from 1509 and contradicted the 1508 code in places (for example `BLE_Set_Device_Name` said `MST_VNSA_`). **Resolved (2026-11-05):** 16 plate comments were corrected against the real 1508 strings and now say "In 1509: ..." (`BLE_Set_Device_Name`, `BLE_Query_Device_Name`, `HTTP_Cloud_Reporting_Dispatcher`, `HTTP_GetUrlData`, `Cloud_UploadTelemetryData`, `Cloud_Report_FillDeviceInfo`, `Config_LoadOrInit_DeviceSettings`, `Cloud_BuildDeviceSourceID`, `ShellCmd_get_ver`, `CLI_InitSession` and six RAM plates); the OTA model checks were correct and are unchanged. The export was regenerated afterwards. The code remains authoritative.
 
 ## Device identity (1508 vs 1509)
 

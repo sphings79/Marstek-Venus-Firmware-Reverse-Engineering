@@ -3,7 +3,7 @@
 > 🇬🇧 English version: [VNSA_Control_Diff_v1508_v1509.md](VNSA_Control_Diff_v1508_v1509.md)
 
 **Stand:** 2026-11-05. Image `1508_control_VNSA-0_app_1508_0819_182932.bin` („A Control 1508“, Build-String `Aug 19 2026 18:29:09`) verglichen mit A Control 1509 (Build-String `Sep  8 2026 09:34:19`). Beide sind in Ghidra mit Basis 0x08004800 geladen (1508: 1935 Funktionen, 1509: 1941).
-**Zugehörige Dokumente:** [VNSA_Control_FW_v1509_Vollanalyse_de.md](VNSA_Control_FW_v1509_Vollanalyse_de.md), [VNSA_Control_Diff_v150_v1509_de.md](VNSA_Control_Diff_v150_v1509_de.md), [VNSA_Control_Diff_v1509_v151_de.md](VNSA_Control_Diff_v1509_v151_de.md)
+**Zugehörige Dokumente:** [VNSA_Control_FW_v1508_Vollanalyse_de.md](VNSA_Control_FW_v1508_Vollanalyse_de.md), [VNSA_Control_FW_v1509_Vollanalyse_de.md](VNSA_Control_FW_v1509_Vollanalyse_de.md), [VNSA_Control_Diff_v150_v1509_de.md](VNSA_Control_Diff_v150_v1509_de.md), [VNSA_Control_Diff_v1509_v151_de.md](VNSA_Control_Diff_v1509_v151_de.md)
 
 ## Kurzfazit
 
@@ -17,7 +17,7 @@
 ## Methodik
 
 Anker: Nach Maskierung von Adressen und Aufrufoperanden sind **95,19 %** der 1508-Bytes (368.444 von 387.072) identisch zu 1509 (452 Blöcke). Über diese Anker werden Funktionen gepaart (1902 identische Paare, 20 Teilpaare, 19 der 1941 1509-Funktionen ohne direkten Partner; 16 Paare im umsortierten Bereich wurden per Instruktionsähnlichkeit geprüft und korrigiert). Danach wurden die geordneten Aufrufziele aller 1935 Paare verglichen: 21 Befunde, alle in ohnehin geänderten Funktionen, keiner unter den 1902 identischen Paaren (keine Fehlpaarung); die geänderten Funktionen wurden auf normalisierter Dekompilat-Ausgabe verglichen.
-Vorbehalt: Die Kommentarköpfe der 1508-Funktionsexporte wurden aus 1509 übernommen; wo sie dem 1508-Code widersprechen (z. B. nennt der Kopf von `BLE_Set_Device_Name` `MST_VNSA_`), gilt der Code.
+Kommentarköpfe: Die Kommentarköpfe der 1508-Funktionen wurden aus 1509 übernommen und widersprachen dem 1508-Code stellenweise (z. B. nannte `BLE_Set_Device_Name` `MST_VNSA_`). **Erledigt (2026-11-05):** 16 Plate-Kommentare wurden gegen die echten 1508-Strings korrigiert und lauten nun „In 1509: ...“ (`BLE_Set_Device_Name`, `BLE_Query_Device_Name`, `HTTP_Cloud_Reporting_Dispatcher`, `HTTP_GetUrlData`, `Cloud_UploadTelemetryData`, `Cloud_Report_FillDeviceInfo`, `Config_LoadOrInit_DeviceSettings`, `Cloud_BuildDeviceSourceID`, `ShellCmd_get_ver`, `CLI_InitSession` und sechs RAM-Plates); die OTA-Modellprüfungen waren korrekt und blieben unverändert. Der Export wurde danach neu erzeugt. Maßgeblich bleibt der Code.
 
 ## Geräte-Identität (1508 vs 1509)
 

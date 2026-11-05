@@ -6,6 +6,7 @@
 **Hauptdokumentation:** [VNSA_Control_FW_v150_Vollanalyse_de.md](VNSA_Control_FW_v150_Vollanalyse_de.md), [VNSA_Control_FW_v1509_Vollanalyse_de.md](VNSA_Control_FW_v1509_Vollanalyse_de.md)
 **Richtung:** v150 (Build 11. Aug 2026, Release) → Beta v150.8 (19. Aug, nicht analysiert) → Beta v150.9 (8. Sep). v150.9 ist eine Beta *nach*
 v150 auf dem Weg zu v151 (das Archiv-Changelog führt sie als „v150.9 (Beta)“); die Tabelle zeigt also, was die Beta gegenüber dem Release v150 ergänzt.
+Zusätzlich gibt es eine Tabelle für die ältere Beta 1508 gegen 1509: [VNSA_Control_Diff_v1508_v1509_de.md](VNSA_Control_Diff_v1508_v1509_de.md) (der 1508-Build ist in dieser Tabelle nicht erfasst).
 
 Funktionspaare über gleiche Namen (1935), Instruktion für Instruktion verglichen mit Aufrufzielen über Namen, referenzierten Strings und
 Immediate-Werten (Literal-Pool- und RAM-Adressen maskiert, weil sich das RAM-Layout unterscheidet): **42 geändert** — 24 mit geändertem Verhalten,

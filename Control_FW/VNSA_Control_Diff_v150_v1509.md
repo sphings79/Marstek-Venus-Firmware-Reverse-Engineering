@@ -6,6 +6,7 @@
 **Main documentation:** [VNSA_Control_FW_v150_Full_Analysis.md](VNSA_Control_FW_v150_Full_Analysis.md), [VNSA_Control_FW_v1509_Full_Analysis.md](VNSA_Control_FW_v1509_Full_Analysis.md)
 **Direction:** v150 (build 11 Aug 2026, release) → beta v150.8 (19 Aug, not analysed) → beta v150.9 (8 Sep). v150.9 is a beta *after* v150
 on the way to v151 (the archive changelog lists it as "v150.9 (Beta)"), so this table shows what the beta added to the release v150.
+There is also a table for the older beta 1508 against 1509: [VNSA_Control_Diff_v1508_v1509.md](VNSA_Control_Diff_v1508_v1509.md) (the 1508 build is not covered by this table).
 
 Function pairs via identical names (1935), compared instruction by instruction with call targets by name, referenced strings and immediate
 values (literal-pool and RAM addresses masked, because the RAM layout differs): **42 changed** — 24 with changed behaviour, 3 only version/identity,
