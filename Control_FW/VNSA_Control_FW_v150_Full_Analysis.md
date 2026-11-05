@@ -7,6 +7,7 @@
 **References:** Venus D Control v150 ([VNSD_Control_FW_v150_Full_Analysis.md](VNSD_Control_FW_v150_Full_Analysis.md)) — same code base and same RAM layout;
 Venus A Control v150.9 ([VNSA_Control_FW_v1509_Full_Analysis.md](VNSA_Control_FW_v1509_Full_Analysis.md)) and v151 ([VNSA_Control_FW_v151_Full_Analysis.md](VNSA_Control_FW_v151_Full_Analysis.md))
 **Diffs:** [VNSA_Control_Diff_v150_v1509.md](VNSA_Control_Diff_v150_v1509.md) (v150 → beta v150.9), [VNSA_Control_Diff_v150_v151.md](VNSA_Control_Diff_v150_v151.md) (v150 → v151)
+**Older build:** the earlier release v149 (28 May 2026) is analysed in [VNSA_Control_FW_v149_Full_Analysis.md](VNSA_Control_FW_v149_Full_Analysis.md), differences in [VNSA_Control_Diff_v149_v150.md](VNSA_Control_Diff_v149_v150.md).
 **Ghidra:** `/VNSA/Control/Control_150_VNSA-0_app_0150_0811_114724.bin` (project `Marstek_Venus`)
 **Decompilation:** `Dekompilate/VNSA_Control_v150/` (local only, not in the repo): 1935 functions, 0 decompilation failures, + `listing/` (flash listing, `globals_and_registers.txt`)
 
