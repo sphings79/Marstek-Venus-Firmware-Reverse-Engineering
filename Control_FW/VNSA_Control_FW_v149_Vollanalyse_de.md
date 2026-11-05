@@ -6,6 +6,7 @@
 **Binary:** `149_control_VNSA-0_app_0149_0528_102448.bin` (Archiv `Marstek FW Archiv/firmwares/VNSA-0/Control/149/`, „A Control 149“)
 **Port-Quelle:** Venus A Control v150, siehe [VNSA_Control_FW_v150_Vollanalyse_de.md](VNSA_Control_FW_v150_Vollanalyse_de.md). Alles, was 149 mit 150 teilt (Vergleich mit Venus D, Modbus, CAN, EEPROM, Tasks, Sicherheitshinweise), ist dort dokumentiert und wird hier **nicht wiederholt**.
 **Unterschiede 149 → 150 (Funktionstabelle):** [VNSA_Control_Diff_v149_v150_de.md](VNSA_Control_Diff_v149_v150_de.md)
+**Rebuild 1491 vom selben Tag:** nur die Versionskonstante unterscheidet sich, siehe [VNSA_Control_Diff_v149_v1491_de.md](VNSA_Control_Diff_v149_v1491_de.md) und [VNSA_Control_FW_v1491_Vollanalyse_de.md](VNSA_Control_FW_v1491_Vollanalyse_de.md)
 **Ghidra:** `/VNSA/Control/Control_149_VNSA-0_app_0149_0528_102448.bin` (Projekt `Marstek_Venus`)
 **Dekompilat:** privater Arbeitsexport (nicht Teil dieses Repositorys): 1913 Funktionen, 0 Dekompilierfehler, dazu ein Flash-Listing und `globals_and_registers.txt` (2589 benannte RAM-/Peripherie-Symbole), gleiche Struktur wie bei 150.
 
