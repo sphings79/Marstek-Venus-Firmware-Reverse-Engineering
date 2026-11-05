@@ -79,8 +79,8 @@ Noch nicht gemacht: Peripherie-Registerlabels über die 188 benannten Globalen h
 
 ## Offen
 
-- Gehäuse-/Q1-Variante des F28035 (braucht `PARTID` bei `0x3D7E80`, die die Firmware nie liest, oder die Pinzahl).
+- Gehäuse-/Q1-Variante des F28035: das 80-Pin-Gehäuse PN ist wahrscheinlich (die Firmware nutzt GPIO44, das dem 64-Pin-Gehäuse fehlt); nicht bewiesen. `PARTID` bei `0x3D7E80` liest die Firmware nie.
 - Bedeutung des Wortes `0x7CE8` im Image-Footer (`0x2222` ist die Gerätemaske des MPPT; `0x7CE8` passt zu keiner getesteten Prüfsumme und wird von keinem Code gelesen).
 - Der MPPT-Loader, der das Image über CAN empfängt, ist nicht Teil des Images (siehe das Befunde-Dokument).
 - Spannungsteiler-/Shunt-Werte, CAN-Bitrate, Watchdog-Timeout.
-- Bestätigung der IACK-Task-Bit-Zuordnung und der F2803x-Registerlayouts gegen das Referenzhandbuch (das Handbuch war nicht als Text abrufbar).
+- Registernamen und -layouts, der Watchdog, die PIE-Tabelle und die IACK-/CLA-Task-Zuordnung wurden gegen das F2803x-Handbuch, das Datenblatt und die Errata geprüft; verbleibende ungeprüfte Punkte stehen im Befunde-Dokument.

@@ -79,8 +79,8 @@ Not done yet: peripheral register labels beyond the 188 named globals.
 
 ## Open
 
-- Package/Q1 variant of the F28035 (needs `PARTID` at `0x3D7E80`, which the firmware never reads, or the pin count).
+- Package/Q1 variant of the F28035: the 80-pin PN package is likely (the firmware uses GPIO44, which the 64-pin package lacks); not proven. `PARTID` at `0x3D7E80` is never read by the firmware.
 - Meaning of the word `0x7CE8` in the image footer (`0x2222` is the device mask of the MPPT; `0x7CE8` matches no tested checksum and is read by no code).
 - The MPPT loader that receives the image over CAN is not part of the image (see the findings document).
 - Hardware divider/shunt values, CAN bit rate, watchdog timeout.
-- Confirmation of the IACK task-bit mapping and of the F2803x register layouts against the technical reference manual (the manual could not be retrieved as text).
+- Register names and layouts, the watchdog, the PIE table and the IACK/CLA task mapping were checked against the F2803x manual, data manual and errata; remaining unchecked items are listed in the findings document.

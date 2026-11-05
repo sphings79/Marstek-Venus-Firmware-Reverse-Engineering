@@ -4,7 +4,7 @@
 
 Static analysis only (disassembly and decompilation of the OTA image, TI C28x, loaded at word address `0x3E8000`; see [VNSD_MPPT_C28x_Image_Setup.md](VNSD_MPPT_C28x_Image_Setup.md)). Nothing here was verified on hardware. All 454 functions are named; every name carries a confidence level in the Ghidra function comment: 408 high, 46 medium, 0 low. Treat medium names as working labels, not as proof. All addresses are C28x **word** addresses.
 
-Register layouts of the F2803x peripherals (ADC, clock control, PLL, GPIO, CLA registers) were in part taken from knowledge of the TI header files, not from a retrieved reference manual (the F2803x technical reference manual could not be fetched as text). Names that rest on this are flagged in the summary below.
+Register names, bit fields, the PIE vector table, the watchdog and the chip options were checked against the TI documents TMS320F2803x Technical Reference Manual (SPRUI10A), Data Manual (SPRS584Q) and Silicon Errata (SPRZ295Q). Application-level names (shell, EEPROM, CAN logic, control) are not covered by those documents and rest on code evidence only. About 25 names and comments were corrected after this check.
 
 ## Chip
 
@@ -13,9 +13,9 @@ Register layouts of the F2803x peripherals (ADC, clock control, PLL, GPIO, CLA r
 | Family | **TI TMS320F2803x** (Piccolo), most likely **F28035** | PIE table, LIN-A block, CLA, no FPU instructions |
 | Not an F2806x | the earlier working assumption was wrong | the console UART at `0x6C00` is the LIN-A block, which F2806x does not have; only 7 ePWM interrupt slots are populated; no FPU (LVF/LUF) use |
 | Why F28035 | CLA present and flash of at least 48 K words | F28033 has 32 K flash, F28034 has no CLA |
-| Package / Q1 variant | **open** | needs `PARTID` (`0x3D7E80`, never read by the firmware) or the pin count |
+| Package / Q1 variant | **open**, 80-pin PN is likely | the firmware drives GPIO44 (EEPROM write control) and GPIO41, which do not exist on the 64-pin package; `PARTID` (`0x3D7E80`) is never read. F28035 `PARTID`: `0xBF` (PN, 80-pin), `0xBE` (PAG, 64-pin), `0xBD` (RSH, 56-pin) |
 
-Flash start `0x3E8000` and the CLA RAM at `0x9000` do not discriminate between F2803x and F2806x. The F2805x family was not checked.
+Flash start `0x3E8000` already excludes F28030/31/32/33 (flash too small or not at that address) and the CLA excludes the F28034. The device table of the data manual (flash, RAM, CLA, ePWM/HRPWM, ADC channels, packages) supports this. Flash start and the CLA RAM at `0x9000` alone do not discriminate between F2803x and F2806x; the LIN-A block does. The F2805x family was not checked. Whether the part is a -Q1 variant cannot be told from the firmware.
 
 ## Program structure
 
@@ -36,7 +36,7 @@ The tail `0x3F0BE2`–`0x3F3FFF` otherwise holds strings (one 16-bit character p
 
 ## Interrupts
 
-The initial vector table contains only default trap stubs (`ASP`, `ESTOP0`, endless loop); the real handlers are written into the PIE table in RAM at run time. 110 of the 112 PIE slots match the F2803x name table (unique stubs only where the datasheet names a peripheral); ADCINT1/2 (INT10.1/10.2 in the datasheet's numbering) are the exception. Layout sources: TI F2803x datasheet SPRS584Q table 7-19, F2806x datasheet SPRS698J table 8-17 (CPU-level order from a TI F2806x header file).
+The initial vector table contains only default trap stubs (`ASP`, `ESTOP0`, endless loop); the real handlers are written into the PIE table in RAM at run time. All 112 PIE slots and the CPU-level vectors match the F2803x tables (unique stubs only where the documents name a peripheral). Sources: data manual SPRS584Q table 7-19 (p. 71) and TRM SPRUI10A (p. 162–165). The F2806x table differs in 16 slots.
 
 | Vector | Source | Handler | Role |
 |---|---|---|---|
@@ -50,7 +50,7 @@ The initial vector table contains only default trap stubs (`ASP`, `ESTOP0`, endl
 
 ## Watchdog
 
-`WDCR` (`0x7029`): `0x68` = disabled, `0x2D` = enabled (check bits 101, prescaler 5), `0x00` = invalid check bits, forces an immediate reset. The watchdog is disabled at reset entry and around two calibration routines and enabled at `0x3EF528` after the initialisation. The keys are written by `Wdt_ServiceKeys_55_AA` (`0x3EF13E`), called from the Timer 1 interrupt and a few init paths. A heartbeat routine (`Comm_CheckHeartbeatTimeout_StopReset`) counts 60 calls without CAN activity, then stops the PWM and writes `WDCR = 0`, which resets the chip; the magic value `0xA5A5` in RAM `0x8782` ("master control", set by the console command `master`) suppresses this. At start-up the firmware reads `WDCR` and prints "Reset by Watchdog" if bit 7 is set. The bit field layout was not confirmed against the F2803x manual; the timeout is unknown because the oscillator frequency is not proven.
+`WDCR` (`0x7029`): `0x68` = disabled, `0x2D` = enabled (check bits 101, prescaler 5), `0x00` = invalid check bits, forces an immediate reset. The watchdog is disabled at reset entry and around two calibration routines and enabled at `0x3EF528` after the initialisation. The keys are written by `Wdt_ServiceKeys_55_AA` (`0x3EF13E`), called from the Timer 1 interrupt and a few init paths. A heartbeat routine (`Comm_CheckHeartbeatTimeout_StopReset`) counts 60 calls without CAN activity, then stops the PWM and writes `WDCR = 0`, which resets the chip; the magic value `0xA5A5` in RAM `0x8782` ("master control", set by the console command `master`) suppresses this. At start-up the firmware reads `WDCR` and prints "Reset by Watchdog" if bit 7 (`WDFLAG`) is set. The bit fields and the prescaler table are confirmed in the TRM (p. 84–90). `WDFLAG` is cleared by writing 1 to it; the firmware never does that, so after the first watchdog reset (including the deliberate one) every later start prints this message until the power is cycled. The firmware clears `CLKCTL.WDCLKSRCSEL`, so the watchdog clock comes from the internal oscillator INTOSC1 (10 MHz nominal), not from the crystal. The timeout for `0x2D` is `2 097 152 / f`, about 210 ms at 10 MHz.
 
 ## Hardware as seen from the code
 
@@ -58,8 +58,11 @@ The initial vector table contains only default trap stubs (`ASP`, `ESTOP0`, endl
 - ADC result registers `0x0B00`–`0x0B0B` are labelled by the firmware's own console output as `PV1_V`, `PV1_I`, … `PV4_V`, `PV4_I`, `CELL_V`, `CELL_I`, `VREF`, `PE_V`: four PV inputs, battery-side cell voltage and current, a reference and a protective-earth voltage. An offset self-calibration (`Adc_OffsetSelfCal`) and a 256-sample averaging sweep are present.
 - An EEPROM sits on the I2C block (`0x7900`, 400 kHz, slave address `0x50`, `0x51` above address `0xFFFF`).
 - A CAN controller with 32 mailboxes in the eCAN layout (`0x6000`, mailbox RAM `0x6100`). Mailboxes 0–15 transmit, 16–31 receive; the node address in RAM `0x8002` is part of the identifiers. The bit rate is not established.
-- The console UART is the LIN-A block at `0x6C00` used as an SCI (baud rate not established).
-- The CLA (control law accelerator) is initialised: program copy to RAM `0x9000`, vector `MVECT8 = 0xE96` (task 8 code at `0x9E96`), `MIER` bit 7 set. `IACK #0x80` starts CLA task 8 at three places; the main sequence then waits on `MIRUN` bit 7. The task code itself is not part of the analysed program space.
+- The console UART is the LIN-A block at `0x6C00` used in SCI mode on GPIO22/23 (`Lina_InitSciMode8N1_Wait_IDLE`); the baud rate is roughly 57.6 kbaud (inferred, not proven). The send routine polls `SCIFLR` bit 11 (TXEMPTY).
+- GPIO use (verified register names): GPIO0–7 are ePWM1–4 A/B, GPIO30/31 are CAN, GPIO32/33 are I2C, GPIO22/23 are LIN-A; GPIO17/18 are outputs driven high (toggled by the ADC interrupt every 50000 calls), GPIO20/21 outputs driven low, GPIO44 output (EEPROM write control). Enabled peripheral clocks: ePWM1–4 and 7, CLA, COMP1/2, LIN-A, I2C, eCAN, ADC; off: SCI-A, SPI, ePWM5/6, eCAP, eQEP, COMP3.
+- ADC: SOC0–7 sample B0..B7, SOC8..11 sample A2, A4, A0, A6, SOC12/13 sample A5 (internal temperature sensor, `TEMPCONV` set). All SOCs are triggered by ePWM7 SOCA, which Pwm_InitEpwm1to4And7Registers sets up as the ADC time base next to ePWM1–4; ADCINT2 comes from EOC13. The clock is `PLLCR` = 12 (OSCCLK × 12 / 2).
+- Hardware trip chain (verified): comparator 1 output to DCAEVT1 and comparator 2 output to DCBEVT1 (digital compare), plus TZ2, as one-shot trips that force the ePWM outputs low.
+- The CLA (control law accelerator) is initialised: program copy to RAM `0x9000`, vectors `MVECT2 = 0` and `MVECT8 = 0xE96` (task 8 code at `0x9E96`), `MMEMCFG` with program memory and RAM1 enabled. Task 2 is triggered by ADCINT2 (`MPISRCSEL1`); task 8 has no peripheral source and is started only by software: `IACK #0x80` at three places, after which the main sequence waits on `MIRUN` bit 7 (`MIER` at `0x1425`, `MIRUN` at `0x1426`, confirmed in data manual table 7-22 and TRM table 10-20). The CPU-to-CLA message RAM at `0x1500`–`0x157F` holds the float references, flags and current offsets that the CPU passes to the CLA. The task code itself is not part of the analysed program space.
 - Code outside the image is called: `0x3D7C80` (clock calibration), `0x3D7E82` and `0x3D7E85` (temperature sensor calibration). This is the TI-programmed OTP area of the device.
 - Time base (inferred, medium): 60 MHz system clock, ADC/PWM interrupt at 50 kHz, tracker at 1 kHz.
 
@@ -125,8 +128,8 @@ TI runtime library functions are present and named by what they do: printf with 
 ## Known weak spots
 
 - Names are static-analysis labels. 46 functions are at medium confidence: the GPIO20/21 and GPIO44 routines, the comparator routines (register layout not verified), the password and user parts of the shell, several printf helpers, the EEPROM date-block reader/writer and the heartbeat pair.
-- Peripheral register names for ADC, clock control, PLL, GPIO and the CLA registers (`MIER` at `0x1425`, `MIRUN` at `0x1426`) come from knowledge of the TI headers for this family and were not checked against a retrieved manual.
+- Not covered by the TI documents or not checked: the bit values of the eCAN constants (`CANBTC = 0x500AA`, `CANGIM = 0x7703`), the `I2CSTR` low bits, the oscillator/crystal frequency, and nine application-level functions (EEPROM block read/write, some protection helpers, two ADC helpers, the console duty command) whose register use needs no document. Errata that could matter (ADC, eCAN, LIN in SCI mode, GPIO, prefetch, oscillator, watchdog, PIE nesting) are listed in the private analysis notes; the errata contain no I2C, CLA, PLL or HRPWM items.
 - The two-word instruction `0x763F 0x0080` occurs three times (at `0x3E80C0`, `0x3E9CF3`, `0x3EF4F9`). The Ghidra processor module did not know it and split the surrounding functions. It is `IACK #0x0080`; the encoding (`0x763F` plus a 16-bit immediate) is confirmed in the TI instruction set reference (SPRU430F), and the task-bit mapping comes from a TI CLA FAQ. A local patch adds the instruction to the module (see the setup document).
 - 16 functions (interrupt handlers and uncalled routines) were missing from the first function list because nothing calls them; they were added later. Any code that is reached only indirectly could still hide the same way; the check "no decoded instruction outside a function" is clean now.
-- Hardware divider and shunt values, the CAN bit rate, the energy counter unit (about 10.4 Wh per count if the tracker runs at exactly 1 kHz), the ADC start-of-conversion trigger and the watchdog timeout are not established.
+- Hardware divider and shunt values, the CAN bit rate, the energy counter unit (about 10.4 Wh per count if the tracker runs at exactly 1 kHz), and the exact watchdog timeout (it depends on the real INTOSC1 frequency) are not established.
 - RAM variable names exist for 188 locations with evidence from console strings or code; the rest of the RAM is unnamed. Structure types (`ChanCtx`, `DataToCan`, `FaultSnapshot`, `CanFrameEntry`, `TimerDrv`, `AdcPipeline`) are defined in the Ghidra project; their field meanings are medium or low confidence in places.
